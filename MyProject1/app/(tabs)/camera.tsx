@@ -3,12 +3,12 @@ import { View, Text, Button, StyleSheet, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ImageUploader() {
-  const [imageUri, setImageUri] = useState<string | null>(null); // 图片的 URI
+  const [imageUri, setImageUri] = useState<string | null>(null); // 圖片的 URI
 
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('需要相册权限才能上传图片');
+      alert('需要相簿權限才能上傳圖片');
       return;
     }
 
