@@ -55,7 +55,7 @@ export default function TabLayout() {
         options={{
           title: 'Chicken',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'camera' : 'camera-outline'} color={color} />
+            <TabBarIcon name={focused ? 'egg' : 'egg-outline'} color={color} />
           ),
         }}
       />
