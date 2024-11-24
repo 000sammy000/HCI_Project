@@ -10,6 +10,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def analyze_food(bimage):
+    bimage = "data:image/jpeg;base64," + bimage
     # Load image from path
     # with open(img_path, "rb") as f:
     #     img = f.read()

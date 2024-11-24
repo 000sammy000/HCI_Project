@@ -1,10 +1,12 @@
+import base64
 import io
 import logging
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from img2data import get_nutrition
 from PIL import Image
+
+from img2data import get_nutrition
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -28,10 +30,10 @@ def process_data():
 def upload_image():
     try:
         # Get the form-data from the request
-        if "formData.image" not in request.files:
+        if "image" not in request.files:
             return jsonify({"error": "No image file in request"}), 400
 
-        file = request.files["formData.image"]
+        file = request.files["image"]
 
         if file.filename == "":
             return jsonify({"error": "No selected file"}), 400
@@ -42,10 +44,12 @@ def upload_image():
 
         # Read and process the image
         image_data = file.read()
-        image = Image.open(io.BytesIO(image_data))
+        # image = Image.open(io.BytesIO(image_data))
+        encode_image = base64.b64encode(image_data).decode("utf-8")
+        # print(f"Image processed: {encode_image[:10]}...")
 
         # Call your image processing function
-        response = get_nutrition(image)
+        response = get_nutrition(encode_image)
 
         return jsonify({"result": response})
 

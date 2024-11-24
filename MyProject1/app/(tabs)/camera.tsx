@@ -65,7 +65,7 @@ export default function ImageUploader() {
       console.log('Base64 image detected');
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      formData.append('image',imageUri);
+      formData.append('image', blob, 'image.jpg');
     } else {
       // For regular file objects
       formData.append('image', imageUri);
