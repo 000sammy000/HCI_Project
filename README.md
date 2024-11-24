@@ -10,3 +10,5 @@ npx expo start
 ```
 
 有動畫的那個介面目前只能在手機跑，網站跑會顯示問題
+
+如果要跑llm的部分，需要自己設定一個`key.py`檔案，並且放置OPENAI_API_KEY。
