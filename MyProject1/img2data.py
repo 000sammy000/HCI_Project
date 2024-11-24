@@ -5,8 +5,18 @@ import requests
 from keys import OPENAI_API_KEY
 from openai import OpenAI
 from PIL import Image
+from pydantic import BaseModel
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+
+class JsonFormat(BaseModel):
+    全榖雜糧類: str
+    豆蛋魚肉類: str
+    乳品類: str
+    蔬菜類: str
+    水果類: str
+    油脂與堅果種子類: str
 
 
 def analyze_food(bimage):
@@ -27,8 +37,7 @@ def analyze_food(bimage):
     5. 水果類，1份 = 水果100公克 = 香蕉半根；\n
     6. 油脂與堅果種子類，1份 = 油類1茶匙；\n
 
-    回覆需為 JSON 格式，請直接輸出 JSON 內容，不要輸出任何多餘的文字。\n
-    數值請勿回覆區間，只能回覆單一整數或小數。\n
+    回覆需為 JSON 格式，數值請勿回覆區間，只能回覆單一整數或小數。\n
     下列為輸出範例：\n
     {
         "菠菜": {
@@ -52,32 +61,42 @@ def analyze_food(bimage):
     請務必依照上述格式回覆，否則系統將無法正確判斷結果。
     """
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-    }
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
             {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"{bimage}"},
+                        "image_url": {"url": bimage},
                     },
                 ],
             }
         ],
-    }
-
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "food_analysis_schema",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "全榖雜糧類": {"type": "string"},
+                        "豆蛋魚肉類": {"type": "string"},
+                        "乳品類": {"type": "string"},
+                        "蔬菜類": {"type": "string"},
+                        "水果類": {"type": "string"},
+                        "油脂與堅果種子類": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+        },
     )
 
-    # print(response.json())
-    return response.json().get("choices")[0].get("message").get("content")
+    print(response)
+    return response.choices[0].message.content
 
 
 def encode_image(image_path):
