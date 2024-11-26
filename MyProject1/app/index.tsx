@@ -6,19 +6,24 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import Navigation from './navigation';
 import * as Progress from 'react-native-progress'; // 引入進度條庫
 
+
 export default function App() {
   const router = useRouter();
 
   // 營養素進度數據
   const nutrients = [
-    { name: '蛋白質', progress: 0.7, color: '#FFB6B6' }, // 淡粉紅
-    { name: '澱粉', progress: 0.5, color: '#B0C4DE' }, // 淡藍灰
-    { name: '脂肪', progress: 0.3, color: '#C1E1C1' }, // 淡綠
+    { name: '全榖雜糧類 ', progress: 0.8, color: '#FFDAB9' },  // 淡橙
+    { name: '豆魚蛋肉類 ', progress: 0.7, color: '#FFB6B6' },  // 淡粉紅
+    { name: '         乳品類 ', progress: 0.6, color: '#C1E1C1' },  // 淡綠
+    { name: '         蔬菜類 ', progress: 0.5, color: '#B0C4DE' },  // 淡藍灰
+    { name: '         水果類 ', progress: 0.4, color: '#FFEC8B' },  // 淡黃
+    { name: '         油脂與\n堅果種子類 ', progress: 0.3, color: '#DDA0DD' }  
   ];
 
   return (
     <View style={styles.container}>
       {/* Lottie 動畫 */}
+      
       <LottieView
         source={require('@/assets/animations/chicken.json')}
         autoPlay
@@ -39,7 +44,7 @@ export default function App() {
             <Text style={styles.progressLabel}>{nutrient.name}</Text>
             <Progress.Bar
               progress={nutrient.progress}
-              width={300}
+              width={200}
               color={nutrient.color}
               style={styles.progressBar}
             />
@@ -62,7 +67,7 @@ const styles = StyleSheet.create({
   lottieAnimationCenter: {
     position: 'absolute',
     top: '10%',
-    transform: [{ translateY: -20 }], // 向上移動 20 像素
+    transform: [{ translateY: -40 }], // 向上移動 20 像素
     width: 600,
     height: 600,
   },
@@ -73,12 +78,13 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     position: 'absolute',
-    bottom: 50, // 距離螢幕底部
+    bottom: 10, // 距離螢幕底部
     alignItems: 'center',
   },
   progressItem: {
-    marginVertical: 10,
-    alignItems: 'center',
+    flexDirection: 'row', // 水平排列
+    alignItems: 'center', // 垂直居中
+    marginBottom: 15, // 每個項目之間的間距
   },
   progressLabel: {
     fontSize: 16,

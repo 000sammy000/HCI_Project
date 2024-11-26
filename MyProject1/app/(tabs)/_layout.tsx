@@ -24,15 +24,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="test"
         options={{
           title: 'Test',
@@ -47,15 +38,6 @@ export default function TabLayout() {
           title: 'Camera',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'camera' : 'camera-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="animation"
-        options={{
-          title: 'Chicken',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'egg' : 'egg-outline'} color={color} />
           ),
         }}
       />

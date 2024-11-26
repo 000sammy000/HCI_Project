@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, Image,TouchableOpacity  } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
+import { useRouter } from 'expo-router';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+
 
 export default function ImageUploader() {
-  const [imageUri, setImageUri] = useState<string | null>(null); // 圖片的 URI
+  const [imageUri, setImageUri] = useState<string | null>(null); // 图片的 URI
+  const router = useRouter();
 
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('需要相簿權限才能上傳圖片');
+      alert('需要相册权限才能上传图片');
       return;
     }
 
@@ -39,66 +42,25 @@ export default function ImageUploader() {
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
     }
-  }
-  
-  const llm_analyze = async () => {
-    if (!imageUri) {
-      alert('請先上傳或選擇圖片！');
-      return;
-    }
-
-    console.log('Image URI:', imageUri);
-
-    const formData = new FormData();
-    
-    // If imageUri is a local file path (like from image picker)
-    // You might need to create a proper file object
-    if (imageUri.startsWith('file://') || imageUri.startsWith('content://')) {
-      // For React Native
-      formData.append('image', {
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: 'image.jpg',
-      });
-    } else if (imageUri.startsWith('data:image')) {
-      // For base64 image data
-      console.log('Base64 image detected');
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      formData.append('image', blob, 'image.jpg');
-    } else {
-      // For regular file objects
-      formData.append('image', imageUri);
-    }
-
-    try {
-      const response = await axios.post(
-        'http://127.0.0.1:5000/analyzeimg', 
-        formData,  // Send formData directly
-        {
-          headers: { 
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-      alert('分析結果: ' + response.data.result);
-    } catch (error) {
-      console.error('Error connecting to Flask:', error);
-      alert('Error: ' + (error.response?.data?.error || error.message));
-    }
-};
+  };
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.header}>圖片上傳</Text>
 
       <Button title="選擇圖片" onPress={selectImage} />
       <Button title="拍照" onPress={takePhoto} />
-      <Button title="分析圖片" onPress={llm_analyze} />
 
       {imageUri && (
         <Image source={{ uri: imageUri }} style={styles.image} />
       )}
+
+      <View style={styles.buttonTopRight}>
+        <TouchableOpacity onPress={() => router.push('/')}>
+          <TabBarIcon name="close" color="#000" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -122,5 +84,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
     borderRadius: 10,
+  },
+  buttonTopRight: {
+    position: 'absolute', // 絕對定位
+    top: 10, // 距離螢幕頂部 10 像素
+    right: 10, // 距離螢幕右側 10 像素
   },
 });
