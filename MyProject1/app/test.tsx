@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert,TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert,TouchableOpacity,TouchableWithoutFeedback ,Keyboard} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { useRouter } from 'expo-router';
@@ -52,6 +52,7 @@ export default function CalorieCalculator() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <View style={styles.container}>
 
       <Text style={styles.header}>基本資料</Text>
@@ -96,6 +97,7 @@ export default function CalorieCalculator() {
       <Navigation />
      
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
