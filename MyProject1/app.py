@@ -1,7 +1,7 @@
 import base64
 import io
 import logging
-
+import json
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from PIL import Image
@@ -50,8 +50,7 @@ def upload_image():
 
         # Call your image processing function
         response = get_nutrition(encode_image)
-
-        return jsonify({"result": response})
+        return response
 
     except Exception as e:
         print(f"Error processing request: {str(e)}")  # Log the error

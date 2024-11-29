@@ -81,7 +81,13 @@ export default function ImageUploader() {
           }
         }
       );
-      alert('分析結果: ' + response.data.result);
+      if(response.data["is_food"] == false)
+      {
+        alert('這不是食物!!!')
+      }else{
+        alert('分析結果: ' + JSON.stringify(response.data["food_data"], null, 2));
+      }
+      
     } catch (error) {
       console.error('Error connecting to Flask:', error);
       alert('Error: ' + (error.response?.data?.error || error.message));

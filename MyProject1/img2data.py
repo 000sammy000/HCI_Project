@@ -2,6 +2,7 @@ import base64
 from io import BytesIO
 
 import requests
+import json
 from keys import OPENAI_API_KEY
 from openai import OpenAI
 from PIL import Image
@@ -38,8 +39,10 @@ def analyze_food(bimage):
     6. 油脂與堅果種子類，1份 = 油類1茶匙；\n
 
     回覆需為 JSON 格式，數值請勿回覆區間，只能回覆單一整數或小數。\n
-    下列為輸出範例：\n
+    **如果圖片中有食物，回覆以下 JSON 格式：**\n
     {
+        "is_food": true,
+        "food_data":{
         "菠菜": {
             "全榖雜糧類": "0",
             "豆蛋魚肉類": "0",
@@ -57,6 +60,12 @@ def analyze_food(bimage):
             "油脂與堅果種子類": "2"
         },
         ...
+        }
+    }
+    **如果圖片中沒有辨識到任何食物，請直接回覆以下 JSON 格式：**\n
+    {
+        "is_food": false,
+        "food_data":{}
     }
     請務必依照上述格式回覆，否則系統將無法正確判斷結果。
     """
@@ -82,17 +91,23 @@ def analyze_food(bimage):
                 "schema": {
                     "type": "object",
                     "properties": {
-                        "全榖雜糧類": {"type": "string"},
-                        "豆蛋魚肉類": {"type": "string"},
-                        "乳品類": {"type": "string"},
-                        "蔬菜類": {"type": "string"},
-                        "水果類": {"type": "string"},
-                        "油脂與堅果種子類": {"type": "string"},
-                    },
-                    "additionalProperties": False,
-                },
-            },
-        },
+                        "is_food": {"type": "boolean"},
+                        "food_data": {
+                            "type": "object",
+                            "properties": {
+                            "全榖雜糧類": {"type": "string"},
+                            "豆蛋魚肉類": {"type": "string"},
+                            "乳品類": {"type": "string"},
+                            "蔬菜類": {"type": "string"},
+                            "水果類": {"type": "string"},
+                            "油脂與堅果種子類": {"type": "string"}
+                            },
+                            "additionalProperties": False
+                        }
+                    }
+                }
+            }
+        }
     )
 
     print(response)
@@ -109,7 +124,10 @@ def get_nutrition(bimage):
     # with open("response.json", "w") as f:
     #     f.write(response)
     # print(response)
-    return response
+    # Check if the response contains any food categories  
+    print(response)
+    response_json = json.loads(response)
+    return response_json
 
 
 if __name__ == "__main__":
