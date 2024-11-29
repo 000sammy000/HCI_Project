@@ -29,7 +29,7 @@ export default function Navigation() {
 
       <View style={styles.buttonTopHistory}>
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity onPress={() => router.push('/')}>
+          <TouchableOpacity onPress={() => router.push('/time')}>
             <AntDesign name="clockcircleo" size={24} color="black" />
           </TouchableOpacity>
         </View>
