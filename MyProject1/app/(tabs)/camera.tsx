@@ -12,7 +12,7 @@ export default function ImageUploader() {
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('需要相册权限才能上传图片');
+      alert('需要相簿權限才能上传图片');
       return;
     }
 
@@ -30,7 +30,7 @@ export default function ImageUploader() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      alert('需要相机权限才能拍照');
+      alert('需要將權限才能拍照');
       return;
     }
 

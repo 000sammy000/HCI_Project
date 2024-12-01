@@ -33,7 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ title: 'Home' }} />
         <Stack.Screen name="test" options={{ title: '設定' }} />
         <Stack.Screen name="camera" options={{ title: '拍照' }} />
-        <Stack.Screen name="album" options={{ title: '照簿' }} />
+        <Stack.Screen name="album" options={{ title: '相簿' }} />
         <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
       </Stack>
     </ThemeProvider>

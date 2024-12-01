@@ -1,24 +1,86 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert,TouchableOpacity,TouchableWithoutFeedback ,Keyboard} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 引入 AsyncStorage
 import { Picker } from '@react-native-picker/picker';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { useRouter } from 'expo-router';
+import { interpolateNutrition } from "./nutritionCalc"; 
 import Navigation from './navigation';
-
+import { useRouter } from 'expo-router';
 
 export default function CalorieCalculator() {
-  const [height, setHeight] = useState<string>(''); // 身高 (cm)
-  const [weight, setWeight] = useState<string>(''); // 體重 (kg)
-  const [activityLevel, setActivityLevel] = useState<string>('light'); // 運動量
+  const [height, setHeight] = useState<string>('');
+  const [weight, setWeight] = useState<string>('');
+  const [activityLevel, setActivityLevel] = useState<string>('light');
   const [bmi, setBmi] = useState<number | null>(null);
   const [calorieIntake, setCalorieIntake] = useState<string>('');
+  const [nutrition, setNutrition] = useState<any>(null);
   const router = useRouter();
 
-  const calculateBMIAndCalories = () => {
-    const heightInMeters = parseFloat(height) / 100;
-    const weightInKg = parseFloat(weight);
+  const saveData = async () => {
+    try {
+      const data = {
+        height,
+        weight,
+        activityLevel,
+        calorieIntake,
+        nutrition
+      };
+      await AsyncStorage.setItem('userData', JSON.stringify(data));
+      Alert.alert('成功', '資料已儲存', [
+        {
+          text: '確定',
+          onPress: () => {
+            router.push('/'); // 儲存成功後導航到首頁（假設首頁路徑是 "/index"）
+          },
+        },
+      ]);
+    } catch (error) {
+      Alert.alert('錯誤', '儲存失敗');
+    }
+  };
 
-    if (heightInMeters && weightInKg) {
+  // 讀取資料
+  const loadData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+      if (storedData) {
+        const data = JSON.parse(storedData);
+        setHeight(data.height || '');
+        setWeight(data.weight || '');
+        setActivityLevel(data.activityLevel || 'light');
+      }
+    } catch (error) {
+      Alert.alert('錯誤', '讀取資料失敗');
+    }
+  };
+
+  const clearData = async () => {
+    try {
+      await AsyncStorage.clear(); // 清除所有儲存資料
+      setHeight(''); // 清空輸入框
+      setWeight(''); // 清空輸入框
+      setActivityLevel('light');
+      alert('資料已清除');
+    } catch (error) {
+      console.error('清除失敗', error);
+    }
+  };
+
+  // 當元件載入時自動讀取資料
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  /*useEffect(() => {
+    if (height && weight) {
+      calculateBMIAndCalories(); // 自動重新計算
+    }
+  }, [height, weight]); // 監聽身高與體重的變化*/
+
+  const calculateBMIAndCalories = () => {
+    if (height && weight) {
+      const heightInMeters = parseFloat(height) / 100;
+      const weightInKg = parseFloat(weight);
+
       const bmiValue = weightInKg / (heightInMeters * heightInMeters);
       setBmi(bmiValue);
 
@@ -26,26 +88,29 @@ export default function CalorieCalculator() {
       let baseCalorie: number;
 
       if (bmiValue < 18.5) {
-        baseCalorie =  35; // 過輕
+        baseCalorie = 35;
       } else if (bmiValue >= 18.5 && bmiValue <= 24.9) {
-        baseCalorie =  30; // 正常
+        baseCalorie = 30;
       } else {
-        baseCalorie =  25; // 過重
+        baseCalorie = 25;
       }
 
-      // 根據運動量調整熱量建議
       let activityAdder: number;
       if (activityLevel === 'light') {
-        activityAdder = 0; // 輕度運動
+        activityAdder = 0;
       } else if (activityLevel === 'moderate') {
-        activityAdder = 5; // 中度運動
+        activityAdder = 5;
       } else {
-        activityAdder = 10; // 重度運動
+        activityAdder = 10;
       }
 
-      const adjustedCalorie = weightInKg*(baseCalorie + activityAdder);
+      const adjustedCalorie = weightInKg * (baseCalorie + activityAdder);
       calorieRecommendation = `每日攝取熱量: ${adjustedCalorie} 大卡 (${bmiValue < 18.5 ? '過輕' : bmiValue <= 24.9 ? '正常' : '過重'})`;
       setCalorieIntake(calorieRecommendation);
+
+      const nutri = interpolateNutrition(adjustedCalorie);
+      setNutrition(nutri);
+
     } else {
       Alert.alert('錯誤', '請輸入有效的身高和體重');
     }
@@ -53,50 +118,67 @@ export default function CalorieCalculator() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Text style={styles.header}>基本資料</Text>
 
-      <Text style={styles.header}>基本資料</Text>
+          <Text>身高 (cm):</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={height}
+            onChangeText={setHeight}
+            placeholder="輸入身高"
+          />
 
-      <Text>身高 (cm):</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={height}
-        onChangeText={setHeight}
-        placeholder="輸入身高"
-      />
+          <Text>體重 (kg):</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={weight}
+            onChangeText={setWeight}
+            placeholder="輸入體重"
+          />
 
-      <Text>體重 (kg):</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={weight}
-        onChangeText={setWeight}
-        placeholder="輸入體重"
-      />
+          <Text>運動量:</Text>
+          <Picker
+            selectedValue={activityLevel}
+            style={styles.picker}
+            onValueChange={(itemValue) => setActivityLevel(itemValue)}
+          >
+            <Picker.Item label="輕度運動" value="light" />
+            <Picker.Item label="中度運動" value="moderate" />
+            <Picker.Item label="重度運動" value="heavy" />
+          </Picker>
 
-      <Text>運動量:</Text>
-      <Picker
-        selectedValue={activityLevel}
-        style={styles.picker}
-        onValueChange={(itemValue) => setActivityLevel(itemValue)}
-      >
-        <Picker.Item label="輕度運動" value="light" />
-        <Picker.Item label="中度運動" value="moderate" />
-        <Picker.Item label="重度運動" value="heavy" />
-      </Picker>
+          <Button title="計算" onPress={calculateBMIAndCalories} />
+          <Button title="儲存資料" onPress={saveData} />
+          <Button title="清除所有資料" onPress={clearData} />
 
-      <Button title="計算" onPress={calculateBMIAndCalories} />
+          {/* 顯示結果或提示 */}
+          {height && weight && bmi !== null && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.resultText}>BMI: {bmi.toFixed(2)}</Text>
+              <Text style={styles.resultText}>{calorieIntake}</Text>
+            </View>
+          )}
 
-      {bmi !== null && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>BMI: {bmi.toFixed(2)}</Text>
-          <Text style={styles.resultText}>{calorieIntake}</Text>
+          {/* 顯示營養素建議 */}
+          {nutrition && height && weight && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.resultText}>建議攝取量:</Text>
+              <Text style={styles.resultText}>全穀雜糧類: {nutrition.grains} 碗</Text>
+              <Text style={styles.resultText}>豆魚蛋肉類: {nutrition.protein} 份</Text>
+              <Text style={styles.resultText}>乳品類: {nutrition.dairy} 杯</Text>
+              <Text style={styles.resultText}>蔬菜類: {nutrition.vegetables} 份</Text>
+              <Text style={styles.resultText}>水果類: {nutrition.fruits} 份</Text>
+              <Text style={styles.resultText}>油脂與堅果種子類: {nutrition.oils} 份</Text>
+            </View>
+          )}
+
+          <Navigation />
         </View>
-      )}
-      <Navigation />
-     
-    </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
@@ -105,6 +187,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingTop: 80,
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
   },
@@ -122,11 +205,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   picker: {
-    borderWidth: 1,
-    borderColor: '#CCCCCC',
-    padding: 10,
     marginVertical: 10,
-    borderRadius: 5,
   },
   resultContainer: {
     marginTop: 20,
@@ -138,14 +217,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
   },
-  buttonTopLeft: {
-    position: 'absolute', // 絕對定位
-    top: 10, // 距離螢幕頂部 10 像素
-    left: 10, // 距離螢幕左側 10 像素
-  },
-  buttonTopHome: {
-    position: 'absolute',
-    top: 10,
-    left: 40, 
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center", // 讓內容居中（如果內容不足以填滿螢幕）
+    paddingBottom: 20,
   },
 });
