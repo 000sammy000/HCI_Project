@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity } from 'react-native';
+import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -11,7 +11,7 @@ export default function ImageUploader() {
   const [imageUri, setImageUri] = useState<string | null>(null); // 圖片的 URI
   const [foodData, setFoodData] = useState(null);
   const [isFoodEditVisible, setFoodEditVisible] = useState(false);
-
+  const [loading, setLoading] = useState(false); // Loading state for ActivityIndicator
 
   const router = useRouter();
 
@@ -80,6 +80,7 @@ export default function ImageUploader() {
       formData.append('image', imageUri);
     }
 
+    setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
         'http://192.168.86.141:5000/analyzeimg', //change into your IP address
@@ -94,7 +95,7 @@ export default function ImageUploader() {
       {
         alert('這不是食物!!!');
       }else{
-        //alert(JSON.stringify(response.data["food_data"], null, 2));
+        alert(JSON.stringify(response.data["food_data"], null, 2));
         setFoodData(response.data["food_data"]);
         setFoodEditVisible(true); // Open the modal with food data
       }
@@ -102,6 +103,8 @@ export default function ImageUploader() {
     } catch (error) {
       console.error('Error connecting to Flask:', error);
       alert('Error: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setLoading(false); // Hide ActivityIndicator
     }
   };
 
@@ -116,6 +119,13 @@ export default function ImageUploader() {
       <Button title="選擇圖片" onPress={selectImage} />
       <Button title="拍照" onPress={takePhoto} />
       <Button title="分析圖片" onPress={llm_analyze} />
+
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0066ff" />
+        </View>
+      )}
+
       <Modal
         visible={isFoodEditVisible}
         animationType="slide"
@@ -163,5 +173,12 @@ const styles = StyleSheet.create({
     position: 'absolute', // 絕對定位
     top: 10, // 距離螢幕頂部 10 像素
     right: 10, // 距離螢幕右側 10 像素
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: '10%',
+    left: '55%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    alignItems: 'center',
   },
 });
