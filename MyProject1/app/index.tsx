@@ -54,10 +54,10 @@ export default function App() {
   const nutrientNameMap: { [key: string]: string } = {
     grains: '全榖雜糧類 ',
     protein: '豆魚蛋肉類 ',
-    dairy: '\t\t\t\t 乳品類 ',
-    vegetables: '\t\t\t\t 蔬菜類 ',
-    fruits: '\t\t\t\t 水果類 ',
-    oils: '\t\t\t\t 油脂與\n堅果種子類 ',
+    dairy: '乳品類 ',
+    vegetables: '蔬菜類 ',
+    fruits: '水果類 ',
+    oils: '油脂與\n堅果種子類 ',
   };
   // 營養素顏色設定
   const getColorForNutrient = (nutrient: string) => {

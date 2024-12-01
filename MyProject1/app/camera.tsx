@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Image,TouchableOpacity } from 'react-native';
+import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import FoodEditScreen from './FoodEdit';
 
 export default function ImageUploader() {
+
   const [imageUri, setImageUri] = useState<string | null>(null); // 圖片的 URI
+  const [foodData, setFoodData] = useState(null);
+  const [isFoodEditVisible, setFoodEditVisible] = useState(false);
+
+
   const router = useRouter();
 
   const selectImage = async () => {
@@ -76,7 +82,7 @@ export default function ImageUploader() {
 
     try {
       const response = await axios.post(
-        'http://192.168.0.74:5000/analyzeimg', //change into your IP address
+        'http://192.168.86.141:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -84,18 +90,24 @@ export default function ImageUploader() {
           }
         }
       );
-      if(response.data["is_food"] == false)
+      if(!response.data["is_food"] )
       {
-        alert('這不是食物!!!')
+        alert('這不是食物!!!');
       }else{
-        alert('分析結果: ' + JSON.stringify(response.data["food_data"], null, 2));
+        //alert(JSON.stringify(response.data["food_data"], null, 2));
+        setFoodData(response.data["food_data"]);
+        setFoodEditVisible(true); // Open the modal with food data
       }
       
     } catch (error) {
       console.error('Error connecting to Flask:', error);
       alert('Error: ' + (error.response?.data?.error || error.message));
     }
-};
+  };
+
+  const closeFoodEdit = () => {
+    setFoodEditVisible(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -104,7 +116,16 @@ export default function ImageUploader() {
       <Button title="選擇圖片" onPress={selectImage} />
       <Button title="拍照" onPress={takePhoto} />
       <Button title="分析圖片" onPress={llm_analyze} />
-
+      <Modal
+        visible={isFoodEditVisible}
+        animationType="slide"
+        onRequestClose={closeFoodEdit}
+      >
+        <FoodEditScreen
+          foodData={foodData} // Pass the API response's food_data here
+          onClose={closeFoodEdit} // Pass the close function
+        />
+      </Modal>
       <View style={styles.buttonTopRight}>
         <TouchableOpacity onPress={() => router.push('/')}>
           <TabBarIcon name="close" color="#000" />

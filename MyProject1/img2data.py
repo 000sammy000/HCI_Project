@@ -1,8 +1,8 @@
 import base64
-import json
 from io import BytesIO
 
 import requests
+import json
 from keys import OPENAI_API_KEY
 from openai import OpenAI
 from PIL import Image
@@ -12,12 +12,12 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 class JsonFormat(BaseModel):
-    全榖雜糧類: str
-    豆蛋魚肉類: str
-    乳品類: str
-    蔬菜類: str
-    水果類: str
-    油脂與堅果種子類: str
+    全榖雜糧類: float
+    豆蛋魚肉類: float
+    乳品類: float
+    蔬菜類: float
+    水果類: float
+    油脂與堅果種子類: float
 
 
 def analyze_food(bimage):
@@ -42,30 +42,40 @@ def analyze_food(bimage):
     **如果圖片中有食物，回覆以下 JSON 格式：**\n
     {
         "is_food": true,
-        "food_data":{
-        "菠菜": {
-            "全榖雜糧類": "0",
-            "豆蛋魚肉類": "0",
-            "乳品類": "0",
-            "蔬菜類": "1.5",
-            "水果類": "0",
-            "油脂與堅果種子類": "0"
-        },
-        "炸雞腿": {
-            "全榖雜糧類": "0",
-            "豆蛋魚肉類": "3.5",
-            "乳品類": "0",
-            "蔬菜類": "0",
-            "水果類": "0",
-            "油脂與堅果種子類": "2"
-        },
+        "food_data":[
+            {
+                "title": "菠菜",
+                "categories": {
+                "全榖雜糧類": "0",
+                "蔬菜類": "1.5"
+                "全榖雜糧類": "0",
+                "豆蛋魚肉類": "0",
+                "乳品類": "0",
+                "蔬菜類": "0",
+                "水果類": "0",
+                "油脂與堅果種子類": "0"
+                }
+            },
+            {
+                "title": "炸雞腿",
+                "categories": {
+                "全榖雜糧類": "0",
+                "蔬菜類": "0.0"
+                "全榖雜糧類": "0",
+                "豆蛋魚肉類": "3.5",
+                "乳品類": "0",
+                "蔬菜類": "0",
+                "水果類": "0",
+                "油脂與堅果種子類": "2"
+                }
+            },
         ...
-        }
+        ]
     }
     **如果圖片中沒有辨識到任何食物，請直接回覆以下 JSON 格式：**\n
     {
         "is_food": false,
-        "food_data":{}
+        "food_data":[]
     }
     請務必依照上述格式回覆，否則系統將無法正確判斷結果。
     """
@@ -86,29 +96,39 @@ def analyze_food(bimage):
             }
         ],
         response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "food_analysis_schema",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "is_food": {"type": "boolean"},
-                        "food_data": {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "food_analysis_schema",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "is_food": {"type": "boolean"},
+                    "food_data": {
+                        "type": "array",
+                        "items": {
                             "type": "object",
                             "properties": {
-                                "全榖雜糧類": {"type": "string"},
-                                "豆蛋魚肉類": {"type": "string"},
-                                "乳品類": {"type": "string"},
-                                "蔬菜類": {"type": "string"},
-                                "水果類": {"type": "string"},
-                                "油脂與堅果種子類": {"type": "string"},
-                            },
-                            "additionalProperties": False,
-                        },
-                    },
+                                "title": {"type": "string"},
+                                "categories": {
+                                    "type": "object",
+                                    "properties": {
+                                        "全榖雜糧類": {"type": "number"},
+                                        "豆蛋魚肉類": {"type": "number"},
+                                        "乳品類": {"type": "number"},
+                                        "蔬菜類": {"type": "number"},
+                                        "水果類": {"type": "number"},
+                                        "油脂與堅果種子類": {"type": "number"}
+                                    },
+                                    "additionalProperties": False
+                                }
+                            },"required": ["title", "categories"]
+                        }
+                    }
                 },
-            },
-        },
+                "required": ["is_food", "food_data"]
+            }
+        }
+    }
     )
 
     print(response)
@@ -125,13 +145,13 @@ def get_nutrition(bimage):
     # with open("response.json", "w") as f:
     #     f.write(response)
     # print(response)
-    # Check if the response contains any food categories
+    # Check if the response contains any food categories  
     print(response)
     response_json = json.loads(response)
     return response_json
 
 
 if __name__ == "__main__":
-    img_path = "bento.jpg"
+    img_path = "steak.jpg"
     bimage = encode_image(img_path)
     get_nutrition(bimage)
