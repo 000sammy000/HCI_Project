@@ -47,7 +47,7 @@ export default function ImageUploader() {
       return;
     }
 
-    console.log('Image URI:', imageUri);
+    // console.log('Image URI:', imageUri);
 
     const formData = new FormData();
     

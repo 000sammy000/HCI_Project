@@ -1,8 +1,8 @@
 import base64
+import json
 from io import BytesIO
 
 import requests
-import json
 from keys import OPENAI_API_KEY
 from openai import OpenAI
 from PIL import Image
@@ -72,6 +72,7 @@ def analyze_food(bimage):
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
+        temperature=0.0,
         messages=[
             {
                 "role": "user",
@@ -95,19 +96,19 @@ def analyze_food(bimage):
                         "food_data": {
                             "type": "object",
                             "properties": {
-                            "全榖雜糧類": {"type": "string"},
-                            "豆蛋魚肉類": {"type": "string"},
-                            "乳品類": {"type": "string"},
-                            "蔬菜類": {"type": "string"},
-                            "水果類": {"type": "string"},
-                            "油脂與堅果種子類": {"type": "string"}
+                                "全榖雜糧類": {"type": "string"},
+                                "豆蛋魚肉類": {"type": "string"},
+                                "乳品類": {"type": "string"},
+                                "蔬菜類": {"type": "string"},
+                                "水果類": {"type": "string"},
+                                "油脂與堅果種子類": {"type": "string"},
                             },
-                            "additionalProperties": False
-                        }
-                    }
-                }
-            }
-        }
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+            },
+        },
     )
 
     print(response)
@@ -124,7 +125,7 @@ def get_nutrition(bimage):
     # with open("response.json", "w") as f:
     #     f.write(response)
     # print(response)
-    # Check if the response contains any food categories  
+    # Check if the response contains any food categories
     print(response)
     response_json = json.loads(response)
     return response_json
