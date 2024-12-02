@@ -27,8 +27,8 @@ export default function ImageUploader() {
 
   useEffect(() => {
     const date = new Date();
-    const month = date.getMonth(); // 月份是 0-11, 所以加 1 會是 1-12
-    setCurrentMonth(month + 1); // 將 0-11 的月份轉換為 1-12
+    const month = date.getMonth(); 
+    setCurrentMonth(month + 1); 
   }, []);
   
   const selectImage = async () => {
@@ -130,43 +130,6 @@ export default function ImageUploader() {
         alert(JSON.stringify(response.data["food_data"], null, 2));
         setFoodData(response.data["food_data"]);
         setFoodEditVisible(true); // Open the modal with food data
-        const result = calculateCategoryTotals(foodData);
-        if (result["蔬菜類"] < 1) {
-          if (3 <= currentMonth && currentMonth <= 5){
-            const rI = Math.floor(Math.random() * sv.length);
-            alert(`這餐的蔬菜吃得比較少。冬天是${sv[rI]}的季節可以多吃點!`);
-          }
-          else if(6 <= currentMonth && currentMonth <= 9){
-            const rI = Math.floor(Math.random() * suv.length);
-            alert(`這餐的蔬菜吃得比較少。冬天是${suv[rI]}的季節可以多吃點!`);
-          }
-          else if(10 <= currentMonth && currentMonth <= 11){
-            const rI = Math.floor(Math.random() * fv.length);
-            alert(`這餐的蔬菜吃得比較少。冬天是${fv[rI]}的季節可以多吃點!`);
-          }
-          else{
-            const rI = Math.floor(Math.random() * wv.length);
-            alert(`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
-          }
-        }
-        else if (result["水果類"] < 1) {
-          if (3 <= currentMonth && currentMonth <= 5){
-            const rI = Math.floor(Math.random() * sf.length);
-            alert(`這餐的沒有吃到水果。冬天推薦吃${sf[rI]}!`);
-          }
-          else if(6 <= currentMonth && currentMonth <= 9){
-            const rI = Math.floor(Math.random() * suv.length);
-            alert(`這餐的沒有吃到水果。冬天推薦吃${suf[rI]}!`);
-          }
-          else if(10 <= currentMonth && currentMonth <= 11){
-            const rI = Math.floor(Math.random() * ff.length);
-            alert(`這餐的沒有吃到水果。冬天推薦吃${ff[rI]}!`);
-          }
-          else{
-            const rI = Math.floor(Math.random() * wf.length);
-            alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
-          }
-        }
       }
       
     } catch (error) {
@@ -179,6 +142,43 @@ export default function ImageUploader() {
 
   const closeFoodEdit = () => {
     setFoodEditVisible(false);
+    const result = calculateCategoryTotals(foodData);
+    if (result["蔬菜類"] < 1) {
+      if (3 <= currentMonth && currentMonth <= 5){
+        const rI = Math.floor(Math.random() * sv.length);
+        alert(`這餐的蔬菜吃得比較少。冬天是${sv[rI]}的季節可以多吃點!`);
+      }
+      else if(6 <= currentMonth && currentMonth <= 9){
+        const rI = Math.floor(Math.random() * suv.length);
+        alert(`這餐的蔬菜吃得比較少。冬天是${suv[rI]}的季節可以多吃點!`);
+      }
+      else if(10 <= currentMonth && currentMonth <= 11){
+        const rI = Math.floor(Math.random() * fv.length);
+        alert(`這餐的蔬菜吃得比較少。冬天是${fv[rI]}的季節可以多吃點!`);
+      }
+      else{
+        const rI = Math.floor(Math.random() * wv.length);
+        alert(`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
+      }
+    }
+    else if (result["水果類"] < 1) {
+      if (3 <= currentMonth && currentMonth <= 5){
+        const rI = Math.floor(Math.random() * sf.length);
+        alert(`這餐的沒有吃到水果。冬天推薦吃${sf[rI]}!`);
+      }
+      else if(6 <= currentMonth && currentMonth <= 9){
+        const rI = Math.floor(Math.random() * suv.length);
+        alert(`這餐的沒有吃到水果。冬天推薦吃${suf[rI]}!`);
+      }
+      else if(10 <= currentMonth && currentMonth <= 11){
+        const rI = Math.floor(Math.random() * ff.length);
+        alert(`這餐的沒有吃到水果。冬天推薦吃${ff[rI]}!`);
+      }
+      else{
+        const rI = Math.floor(Math.random() * wf.length);
+        alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
+      }
+    }
   };
 
   return (
