@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -14,7 +14,23 @@ export default function ImageUploader() {
   const [loading, setLoading] = useState(false); // Loading state for ActivityIndicator
 
   const router = useRouter();
+  
+  const wv = ["油菜", "高麗菜", "白菜", "芥藍", "菠菜", "甜椒"];//冬蔬菜
+  const wf = ["椪柑", "草莓", "小番茄", "蜜棗", "柳丁"];//冬水果
+  const sv = ["蘆筍", "龍鬚菜", "櫛瓜", "地瓜葉", "紅鳳菜"];//春蔬菜
+  const sf = ["枇杷", "楊桃", "桑椹", "烏梅", "柑橘"];//春水果
+  const suv = ["空心菜", "冬瓜", "小黃瓜", "芥藍", "絲瓜"];//夏蔬菜
+  const suf = ["蓮霧", "香蕉", "西瓜", "鳳梨", "龍眼", "荔枝", "百香果"];//夏水果
+  const fv = ["茭白筍", "青江菜", "青木瓜", "豆芽", "南瓜"];//秋蔬菜
+  const ff = ["葡萄", "金桔", "木瓜", "柿子", "文旦"];//秋水果
+  const [currentMonth, setCurrentMonth] = useState<number>(0);
 
+  useEffect(() => {
+    const date = new Date();
+    const month = date.getMonth(); // 月份是 0-11, 所以加 1 會是 1-12
+    setCurrentMonth(month + 1); // 將 0-11 的月份轉換為 1-12
+  }, []);
+  
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -49,6 +65,22 @@ export default function ImageUploader() {
       setImageUri(result.assets[0].uri);
     }
   }
+
+  const calculateCategoryTotals = (foodData) => {
+    const totalCategories: { [key: string]: number } = {};
+  
+    foodData.forEach((food) => {
+      Object.entries(food.categories).forEach(([category, value]) => {
+        const numericValue = parseFloat(value);
+        if (!totalCategories[category]) {
+          totalCategories[category] = 0;
+        }
+        totalCategories[category] += numericValue;
+      });
+    });
+  
+    return totalCategories;
+  };
   
   const llm_analyze = async () => {
     if (!imageUri) {
@@ -98,6 +130,43 @@ export default function ImageUploader() {
         alert(JSON.stringify(response.data["food_data"], null, 2));
         setFoodData(response.data["food_data"]);
         setFoodEditVisible(true); // Open the modal with food data
+        const result = calculateCategoryTotals(foodData);
+        if (result["蔬菜類"] < 1) {
+          if (3 <= currentMonth && currentMonth <= 5){
+            const rI = Math.floor(Math.random() * sv.length);
+            alert(`這餐的蔬菜吃得比較少。冬天是${sv[rI]}的季節可以多吃點!`);
+          }
+          else if(6 <= currentMonth && currentMonth <= 9){
+            const rI = Math.floor(Math.random() * suv.length);
+            alert(`這餐的蔬菜吃得比較少。冬天是${suv[rI]}的季節可以多吃點!`);
+          }
+          else if(10 <= currentMonth && currentMonth <= 11){
+            const rI = Math.floor(Math.random() * fv.length);
+            alert(`這餐的蔬菜吃得比較少。冬天是${fv[rI]}的季節可以多吃點!`);
+          }
+          else{
+            const rI = Math.floor(Math.random() * wv.length);
+            alert(`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
+          }
+        }
+        else if (result["水果類"] < 1) {
+          if (3 <= currentMonth && currentMonth <= 5){
+            const rI = Math.floor(Math.random() * sf.length);
+            alert(`這餐的沒有吃到水果。冬天推薦吃${sf[rI]}!`);
+          }
+          else if(6 <= currentMonth && currentMonth <= 9){
+            const rI = Math.floor(Math.random() * suv.length);
+            alert(`這餐的沒有吃到水果。冬天推薦吃${suf[rI]}!`);
+          }
+          else if(10 <= currentMonth && currentMonth <= 11){
+            const rI = Math.floor(Math.random() * ff.length);
+            alert(`這餐的沒有吃到水果。冬天推薦吃${ff[rI]}!`);
+          }
+          else{
+            const rI = Math.floor(Math.random() * wf.length);
+            alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
+          }
+        }
       }
       
     } catch (error) {
