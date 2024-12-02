@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@lottiefiles/dotlottie-react": "^0.6.5",
     "@lottiefiles/react-lottie-player": "^3.5.4",
     "@react-native-picker/picker": "^2.9.0",
     "@react-navigation/native": "^6.0.2",
