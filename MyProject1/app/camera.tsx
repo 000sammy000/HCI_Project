@@ -152,10 +152,58 @@ export default function ImageUploader() {
     const updatedEntries = [...existingDailyEntries, entry];
     await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
     console.log('Saved food data:', updatedEntries);
+
+    // Update daily progress
+    const progress = {
+      grains: 0,
+      protein: 0,
+      dairy: 0,
+      vegetables: 0,
+      fruits: 0,
+      oils: 0,
+    }
+
+    const existingDailyProgressJson = await AsyncStorage.getItem('DailyProgress');
+    const existingDailyProgress = existingDailyProgressJson ? JSON.parse(existingDailyProgressJson) : progress;
+    console.log('Previous daily progress:', existingDailyProgress);
+
+    // Iterate over the foodData and update progress
+    foodData.forEach((foodItem) => {
+      // Assuming each foodItem has a title and categories (with quantities)
+      Object.entries(foodItem.categories).forEach(([category, value]) => {
+      const numericValue = parseFloat(value); // Convert value to number
+      if (numericValue > 0) { // Only update if the value is greater than zero
+        if (category === "豆魚蛋肉類") {
+        existingDailyProgress.protein += numericValue;
+        }
+        else if (category === "乳品類") {
+        existingDailyProgress.dairy += numericValue;
+        }
+        else if (category === "蔬菜類") {
+        existingDailyProgress.vegetables += numericValue;
+        }
+        else if (category === "水果類") {
+        existingDailyProgress.fruits += numericValue;
+        }
+        else if (category === "油脂與堅果種子類") {
+        existingDailyProgress.oils += numericValue;
+        }
+        else if (category === "全榖雜糧類") {
+        existingDailyProgress.grains += numericValue;
+        }
+      }
+      });
+    });
+
+    await AsyncStorage.setItem('DailyProgress', JSON.stringify(existingDailyProgress));
+    console.log('Saved daily progress:', existingDailyProgress);
+
   }
 
-  const closeFoodEdit = () => {
+  const closeFoodEdit = (updatedData: any) => {
     setFoodEditVisible(false);
+    setFoodData(updatedData);
+    saveFoodData(updatedData);
     const result = calculateCategoryTotals(foodData);
     if (result["蔬菜類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
@@ -214,7 +262,7 @@ export default function ImageUploader() {
       <Modal
         visible={isFoodEditVisible}
         animationType="slide"
-        onRequestClose={closeFoodEdit}
+        onRequestClose={() => closeFoodEdit(foodData)} // Default pass current data
       >
         <FoodEditScreen
           foodData={foodData} // Pass the API response's food_data here

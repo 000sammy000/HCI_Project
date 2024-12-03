@@ -77,20 +77,25 @@ const Surprise: React.FC = () => {
                 <Text style={styles.entryDate}>
                   {new Date(entry.timestamp).toLocaleString()}
                 </Text>
-                {entry.foods.map((food, foodIndex) => (
-                  <View key={foodIndex} style={styles.foodItem}>
-                    <Text>{food.title}</Text>
-                    {Object.entries(food.categories).map(([category, value]) => (
-                      value !== "0" && (
-                        <Text key={category} style={styles.categoryText}>
-                          {category}: {value}
-                        </Text>
-                      )
-                    ))}
-                  </View>
-                ))}
+                {/* Iterate over the foods object */}
+                {entry.foods && Array.isArray(entry.foods) && entry.foods.map((foodItem, foodIndex) => (
+                <View key={foodIndex} style={styles.foodItemContainer}>
+                  {/* Ensure that foodItem.title is a string */}
+                  {foodItem.title && (
+                    <Text style={styles.foodItemTitle}>{foodItem.title}</Text>
+                  )}
+                  {/* Iterate over categories to display key-value pairs */}
+                  {foodItem.categories && Object.entries(foodItem.categories).map(([category, value]) => (
+                    value !== 0 && (
+                      <Text key={category} style={styles.categoryText}>
+                        {`${category}: ${value}`}
+                      </Text>
+                    )
+                  ))}
+                </View>
+              ))}
               </View>
-            ))
+            ))            
           )}
         </ScrollView>
       </View>

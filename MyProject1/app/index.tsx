@@ -43,14 +43,41 @@ export default function App() {
     fetchNutritionData();
   }, []);
 
-  const currentProgress = {
-    grains: 2.4, // 當前攝取量（例如來自伺服器或本地計算）
-    protein: 3.5,
-    dairy: 1.0,
-    vegetables: 3.0,
-    fruits: 2.5,
-    oils: 1.0,
+  // const currentProgress = {
+  //   grains: 2.4, // 當前攝取量（例如來自伺服器或本地計算）
+  //   protein: 3.5,
+  //   dairy: 1.0,
+  //   vegetables: 3.0,
+  //   fruits: 2.5,
+  //   oils: 1.0,
+  // };
+  const [currentProgress, setCurrentProgress] = useState({
+    grains: 0,
+    protein: 0,
+    dairy: 0,
+    vegetables: 0,
+    fruits: 0,
+    oils: 0,
+  });
+  
+  // Function to fetch progress data
+  const fetchDailyProgress = async () => {
+    try {
+      const storedProgress = await AsyncStorage.getItem('DailyProgress');
+      if (storedProgress) {
+        setCurrentProgress(JSON.parse(storedProgress));
+      }
+    } catch (error) {
+      console.error('Error fetching daily progress:', error);
+    }
   };
+  
+  // refetch progress data when touch a button
+  const handleRefresh = () => {
+    fetchDailyProgress();
+  };
+  
+
   const nutrientNameMap: { [key: string]: string } = {
     grains: '全榖雜糧類 ',
     protein: '豆魚蛋肉類 ',
@@ -110,7 +137,12 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* 營養素進度條 */}
+      {/* 重新整理按鈕 */}
+        <View style={styles.refreshButtonContainer}>
+          <Button title="重新整理" onPress={handleRefresh} />
+        </View>
+
+        {/* 營養素進度條 */}
       <View style={styles.progressBarContainer}>
         {nutrients.map((nutrient, index) => (
           <View key={index} style={styles.progressItem}>
@@ -184,5 +216,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     marginLeft: 10, // 數字與進度條的距離
+  },
+  refreshButtonContainer: {
+    position: 'absolute',
+    bottom: 280,
+    left: 150,
   },
 });
