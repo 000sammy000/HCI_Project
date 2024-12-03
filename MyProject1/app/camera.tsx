@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
+import { Modal, Alert, View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -160,37 +160,37 @@ export default function ImageUploader() {
     if (result["蔬菜類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${sv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。春天是${sv[rI]}的季節可以多吃點!`);
       }
       else if(6 <= currentMonth && currentMonth <= 9){
         const rI = Math.floor(Math.random() * suv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${suv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。夏天是${suv[rI]}的季節可以多吃點!`);
       }
       else if(10 <= currentMonth && currentMonth <= 11){
         const rI = Math.floor(Math.random() * fv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${fv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。秋天是${fv[rI]}的季節可以多吃點!`);
       }
       else{
         const rI = Math.floor(Math.random() * wv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
       }
     }
     else if (result["水果類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sf.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${sf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。春天推薦吃${sf[rI]}!`);
       }
       else if(6 <= currentMonth && currentMonth <= 9){
         const rI = Math.floor(Math.random() * suv.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${suf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。夏天推薦吃${suf[rI]}!`);
       }
       else if(10 <= currentMonth && currentMonth <= 11){
         const rI = Math.floor(Math.random() * ff.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${ff[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。秋天推薦吃${ff[rI]}!`);
       }
       else{
         const rI = Math.floor(Math.random() * wf.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
       }
     }
     // save food data to local storage
