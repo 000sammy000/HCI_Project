@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import FoodEditScreen from './FoodEdit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ImageUploader() {
 
@@ -115,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://192.168.86.141:5000/analyzeimg', //change into your IP address
+        'http://172.20.10.4:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -127,7 +128,7 @@ export default function ImageUploader() {
       {
         alert('這不是食物!!!');
       }else{
-        alert(JSON.stringify(response.data["food_data"], null, 2));
+        // alert(JSON.stringify(response.data["food_data"], null, 2));
         setFoodData(response.data["food_data"]);
         setFoodEditVisible(true); // Open the modal with food data
       }
@@ -139,6 +140,19 @@ export default function ImageUploader() {
       setLoading(false); // Hide ActivityIndicator
     }
   };
+
+  const saveFoodData = async (foodData) => {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      foods: foodData,
+    };
+    const existingDailyEntriesJson = await AsyncStorage.getItem('DailyfoodEntries');
+    const existingDailyEntries = existingDailyEntriesJson ? JSON.parse(existingDailyEntriesJson) : [];
+    
+    const updatedEntries = [...existingDailyEntries, entry];
+    await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
+    console.log('Saved food data:', updatedEntries);
+  }
 
   const closeFoodEdit = () => {
     setFoodEditVisible(false);
@@ -179,6 +193,8 @@ export default function ImageUploader() {
         alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
       }
     }
+    // save food data to local storage
+    saveFoodData(foodData);
   };
 
   return (

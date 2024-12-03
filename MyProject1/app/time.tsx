@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Surprise: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<string>("");
   const [period, setPeriod] = useState<string>("");
   const [showSurprise, setShowSurprise] = useState<boolean>(false);
+  const [foodEntries, setFoodEntries] = useState<any[]>([]);
 
   const surpriseTime = "12:00:00";
 
+  // test if the loaded food entries can be correctly displayed
+  const loadFoodEntries = async () => {
+    const entriesJson = await AsyncStorage.getItem('DailyfoodEntries');
+    const entries = entriesJson ? JSON.parse(entriesJson) : [];
+    setFoodEntries(entries);
+  }
+
   useEffect(() => {
+    loadFoodEntries();
+
     const updateTime = () => {
       const now = new Date();
       const hours = now.getHours();
@@ -55,6 +66,35 @@ const Surprise: React.FC = () => {
           <Text style={styles.surpriseText}>🎉 這是你的驚喜！ 🎉</Text>
         </View>
       )}
+      <View style={styles.foodEntriesContainer}>
+        <Text style={styles.foodEntriesTitle}>飲食紀錄</Text>
+        <ScrollView style={styles.foodEntriesList}>
+          {foodEntries.length === 0 ? (
+            <Text style={styles.noEntriesText}>尚無飲食紀錄</Text>
+          ) : (
+            foodEntries.map((entry, index) => (
+              <View key={index} style={styles.entryContainer}>
+                <Text style={styles.entryDate}>
+                  {new Date(entry.timestamp).toLocaleString()}
+                </Text>
+                {entry.foods.map((food, foodIndex) => (
+                  <View key={foodIndex} style={styles.foodItem}>
+                    <Text>{food.title}</Text>
+                    {Object.entries(food.categories).map(([category, value]) => (
+                      value !== "0" && (
+                        <Text key={category} style={styles.categoryText}>
+                          {category}: {value}
+                        </Text>
+                      )
+                    ))}
+                  </View>
+                ))}
+              </View>
+            ))
+          )}
+        </ScrollView>
+      </View>
+
     </View>
   );
 };
@@ -90,6 +130,45 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#000",
+  },
+  foodEntriesContainer: {
+    width: '90%',
+    marginTop: 20,
+    maxHeight: 300,
+  },
+  foodEntriesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  foodEntriesList: {
+    maxHeight: 250,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    padding: 10,
+  },
+  noEntriesText: {
+    textAlign: 'center',
+    color: '#888',
+  },
+  entryContainer: {
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 5,
+  },
+  entryDate: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  foodItem: {
+    marginLeft: 10,
+    marginBottom: 5,
+  },
+  categoryText: {
+    color: '#666',
+    fontSize: 12,
   },
 });
 
