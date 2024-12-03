@@ -21,7 +21,8 @@ const defaultNutrition = {
 export default function App() {
   const router = useRouter();
   const [nutritionData, setNutritionData] = useState<any | null>(null);
-
+  const [cover, setCover] = useState(true);
+  
   useEffect(() => {
     const fetchNutritionData = async () => {
       try {
@@ -30,6 +31,7 @@ export default function App() {
           const parsedData = JSON.parse(storedData);
           if (parsedData.nutrition) {
             setNutritionData(parsedData.nutrition);
+            setCover(false);
           } else {
             Alert.alert('提示', '尚未儲存任何營養建議資料');
           }
@@ -129,7 +131,11 @@ export default function App() {
           </View>
         ))}
       </View>
-
+      
+      { cover && <View style = {coverstyle}>
+        <Text style = {textstyle}>請先輸入基本資料</Text>
+      </View>}
+      
       <Navigation />
     </View>
   );
@@ -186,3 +192,21 @@ const styles = StyleSheet.create({
     marginLeft: 10, // 數字與進度條的距離
   },
 });
+
+const coverstyle: React.CSSProperties = {
+  position: 'fixed',
+  bottom: -230,
+  left: 0,
+  width: '95%',
+  height: '30%',
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  zIndex: 9999,
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+const textstyle: React.CSSProperties = {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: 'white',
+};
