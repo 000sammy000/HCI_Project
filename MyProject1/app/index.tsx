@@ -21,7 +21,7 @@ const defaultNutrition = {
 export default function App() {
   const router = useRouter();
   const [nutritionData, setNutritionData] = useState<any | null>(null);
-  const [cover, setCover] = useState(true);
+  const [cover, setCover] = useState(true);//遮罩用
   
   useEffect(() => {
     const fetchNutritionData = async () => {
@@ -31,7 +31,7 @@ export default function App() {
           const parsedData = JSON.parse(storedData);
           if (parsedData.nutrition) {
             setNutritionData(parsedData.nutrition);
-            setCover(false);
+            setCover(false);//設定個人資料後沒有遮罩
           } else {
             Alert.alert('提示', '尚未儲存任何營養建議資料');
           }
@@ -131,7 +131,7 @@ export default function App() {
           </View>
         ))}
       </View>
-      
+      {/*遮罩跟提醒文字*/}
       { cover && <View style = {coverstyle}>
         <Text style = {textstyle}>請先輸入基本資料</Text>
       </View>}
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const coverstyle: React.CSSProperties = {
+const coverstyle: React.CSSProperties = { //遮罩透明黑底
   position: 'fixed',
   bottom: -230,
   left: 0,
@@ -205,7 +205,7 @@ const coverstyle: React.CSSProperties = {
   alignItems: 'center',
 };
 
-const textstyle: React.CSSProperties = {
+const textstyle: React.CSSProperties = {//遮罩上文字
   fontSize: 20,
   fontWeight: 'bold',
   color: 'white',
