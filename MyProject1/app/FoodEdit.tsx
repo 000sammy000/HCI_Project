@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import ImageUploader from './camera';
 
-const FoodEditScreen = ({ foodData, onClose }) => {
+const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
   const original_Data = foodData;
   const [editedData, setEditedData] = useState(foodData);  //send food data from camera.tsx
 
@@ -37,6 +36,7 @@ const FoodEditScreen = ({ foodData, onClose }) => {
 
   const handleSave = () => {
     console.log('Saved Data:', editedData);
+    onSave(editedData); 
     onClose(); // Close the modal
   };
 
@@ -72,7 +72,7 @@ const FoodEditScreen = ({ foodData, onClose }) => {
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={handleSave} />
         <Button title="Reset" onPress={handleReset} color="red" /> {/* Reset Button */}
-        <Button title="Close" onPress={onClose} />
+        <Button title="Cancel" onPress={onClose} />
       </View>
     </ScrollView>
   );

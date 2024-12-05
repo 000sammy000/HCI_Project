@@ -8,7 +8,6 @@ import * as Progress from 'react-native-progress'; // 引入進度條庫
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-
 const defaultNutrition = {
   grains: 5, // 全榖雜糧類
   protein: 5, // 豆魚蛋肉類
@@ -22,7 +21,15 @@ export default function App() {
   const router = useRouter();
   const [nutritionData, setNutritionData] = useState<any | null>(null);
   const [cover, setCover] = useState(true);//遮罩用
-  
+  const [currentProgress, setCurrentProgress] = useState({
+    grains: 0,
+    protein: 0,
+    dairy: 0,
+    vegetables: 0,
+    fruits: 0,
+    oils: 0,
+  }); // Initial progress state
+
   useEffect(() => {
     const fetchNutritionData = async () => {
       try {
@@ -45,14 +52,7 @@ export default function App() {
     fetchNutritionData();
   }, []);
 
-  const currentProgress = {
-    grains: 2.4, // 當前攝取量（例如來自伺服器或本地計算）
-    protein: 3.5,
-    dairy: 1.0,
-    vegetables: 3.0,
-    fruits: 2.5,
-    oils: 1.0,
-  };
+
   const nutrientNameMap: { [key: string]: string } = {
     grains: '全榖雜糧類 ',
     protein: '豆魚蛋肉類 ',
@@ -115,20 +115,20 @@ export default function App() {
       {/* 營養素進度條 */}
       <View style={styles.progressBarContainer}>
         {nutrients.map((nutrient, index) => (
-          <View key={index} style={styles.progressItem}>
-            <Text style={styles.progressLabel}>
-              {nutrientNameMap[nutrient.name] || nutrient.name}
-            </Text>
-            <Progress.Bar
-              progress={nutrient.progress}
-              width={200}
-              color={nutrient.color}
-              style={styles.progressBar}
-            />
-            <Text style={styles.progressText}>
-              {nutrient.current}/{nutrient.max}
-            </Text>
-          </View>
+              <View key={index} style={styles.progressItem}>
+                <Text style={styles.progressLabel}>
+                  {nutrientNameMap[nutrient.name] || nutrient.name}
+                </Text>
+                <Progress.Bar
+                  progress={nutrient.progress}
+                  width={200}
+                  color={nutrient.color}
+                  style={styles.progressBar}
+                />
+                <Text style={styles.progressText}>
+                  {nutrient.current}/{nutrient.max}
+                </Text>
+              </View>
         ))}
       </View>
       {/*遮罩跟提醒文字*/}

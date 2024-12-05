@@ -67,10 +67,10 @@ export default function ImageUploader() {
     }
   }
 
-  const calculateCategoryTotals = (foodData) => {
+  const calculateCategoryTotals = (Data) => {
     const totalCategories: { [key: string]: number } = {};
   
-    foodData.forEach((food) => {
+    Data.forEach((food) => {
       Object.entries(food.categories).forEach(([category, value]) => {
         const numericValue = parseFloat(value);
         if (!totalCategories[category]) {
@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://172.20.10.4:5000/analyzeimg', //change into your IP address
+        'http://192.168.6.102:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -141,22 +141,18 @@ export default function ImageUploader() {
     }
   };
 
-  const saveFoodData = async (foodData) => {
+  const saveFoodData = async (EditfoodData) => {  //不要取名為foodData
     const entry = {
       timestamp: new Date().toISOString(),
-      foods: foodData,
+      foods: EditfoodData,
     };
     const existingDailyEntriesJson = await AsyncStorage.getItem('DailyfoodEntries');
     const existingDailyEntries = existingDailyEntriesJson ? JSON.parse(existingDailyEntriesJson) : [];
     
     const updatedEntries = [...existingDailyEntries, entry];
     await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
-    console.log('Saved food data:', updatedEntries);
-  }
 
-  const closeFoodEdit = () => {
-    setFoodEditVisible(false);
-    const result = calculateCategoryTotals(foodData);
+    const result = calculateCategoryTotals(EditfoodData);
     if (result["蔬菜類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sv.length);
@@ -193,8 +189,14 @@ export default function ImageUploader() {
         Alert.alert('建議',`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
       }
     }
+    console.log('Saved food data:', updatedEntries);
+  }
+
+  const closeFoodEdit = () => {
+    setFoodEditVisible(false);
+    
     // save food data to local storage
-    saveFoodData(foodData);
+    //saveFoodData(foodData);
   };
 
   return (
@@ -205,11 +207,11 @@ export default function ImageUploader() {
       <Button title="拍照" onPress={takePhoto} />
       <Button title="分析圖片" onPress={llm_analyze} />
 
-      {loading && (
+      {loading ?  (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0066ff" />
         </View>
-      )}
+      ): null }
 
       <Modal
         visible={isFoodEditVisible}
@@ -217,8 +219,9 @@ export default function ImageUploader() {
         onRequestClose={closeFoodEdit}
       >
         <FoodEditScreen
-          foodData={foodData} // Pass the API response's food_data here
+          foodData={foodData} // gpt回傳分析結果傳去編輯畫面
           onClose={closeFoodEdit} // Pass the close function
+          onSave={saveFoodData}
         />
       </Modal>
       <View style={styles.buttonTopRight}>
@@ -227,9 +230,9 @@ export default function ImageUploader() {
         </TouchableOpacity>
       </View>
 
-      {imageUri && (
+      {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} />
-      )}
+      ) : null }
     </View>
   );
 }
