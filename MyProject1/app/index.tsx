@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, } from 'react-native';
+import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -61,21 +61,30 @@ export default function App() {
     fruits: '水果類 ',
     oils: '油脂與\n堅果種子類 ',
   };
+
+  const nutrientIconMap: { [key: string]: any } = {
+    grains: require("../assets/images/NutrientIcons/grains.png"),
+    protein: require("../assets/images/NutrientIcons/protein.png"),
+    dairy: require("../assets/images/NutrientIcons/dairy.png"),
+    vegetables: require("../assets/images/NutrientIcons/vegetables.png"),
+    fruits: require("../assets/images/NutrientIcons/fruits.png"),
+    oils: require("../assets/images/NutrientIcons/oils.png"),
+  };
   // 營養素顏色設定
   const getColorForNutrient = (nutrient: string) => {
     switch (nutrient) {
       case 'grains':
-        return '#FFB6B6'; // 淡粉紅
+        return '#2c88c3'; // 藍色
       case 'protein':
-        return '#FFDAB9'; // 淡橙
+        return '#e58e74'; // 深膚色
       case 'dairy':
-        return '#FFEC8B'; // 淡黃 
+        return '#8a7cb9'; // 紫色
       case 'vegetables':
-        return '#C1E1C1'; // 淡綠
+        return '#66a372'; // 綠色
       case 'fruits':
-        return '#B0C4DE'; // 淡藍灰
+        return '#fd9fc0'; // 粉色
       case 'oils':
-        return '#DDA0DD'; // 淡紫
+        return '#fbb947'; // 黃色
       default:
         return '#ccc'; // 預設顏色
     }
@@ -116,9 +125,12 @@ export default function App() {
       <View style={styles.progressBarContainer}>
         {nutrients.map((nutrient, index) => (
               <View key={index} style={styles.progressItem}>
-                <Text style={styles.progressLabel}>
+                {/* <Text style={styles.progressLabel}>
                   {nutrientNameMap[nutrient.name] || nutrient.name}
-                </Text>
+                </Text> */}
+                <Image 
+                  style={styles.progressIcon}
+                  source={nutrientIconMap[nutrient.name]}/>
                 <Progress.Bar
                   progress={nutrient.progress}
                   width={200}
@@ -163,13 +175,13 @@ const styles = StyleSheet.create({
   progressBarContainer: {
     position: 'absolute',
     bottom: 30, // 距離螢幕底部
-    left: 10, // 與螢幕左側對齊
+    // left: 10, // 與螢幕左側對齊
     alignItems: 'flex-start', // 讓項目都靠左
   },
   progressItem: {
     flexDirection: 'row', // 水平排列
     alignItems: 'flex-start', // 垂直對齊為頂部
-    marginBottom: 15, // 每個進度條項目之間的距離
+    marginBottom: 7, // 每個進度條項目之間的距離
   },
   progressLabel: {
     fontSize: 16,
@@ -179,17 +191,22 @@ const styles = StyleSheet.create({
     lineHeight: 20, // 調整行高讓文字垂直居中
     bottom: 5,
     left: 10,
-   
+  },
+  progressIcon: {
+    width: 30,
+    height: 30,
   },
   progressBar: {
     height: 8, // 設定固定高度，保持一致
-    alignSelf: 'flex-start', // 進度條與文字靠左
+    alignSelf: 'center', // 進度條與文字靠左
+    marginLeft: 8,
     
   },
   progressText: {
     fontSize: 14,
     color: '#333',
     marginLeft: 10, // 數字與進度條的距離
+    alignSelf: 'center',
   },
 });
 
