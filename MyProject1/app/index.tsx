@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image} from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Pressable, Modal} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -21,6 +21,10 @@ export default function App() {
   const router = useRouter();
   const [nutritionData, setNutritionData] = useState<any | null>(null);
   const [cover, setCover] = useState(true);//遮罩用
+  const [infoVisable, setInfoVisable] = useState(false);
+  const [infoText, setInfoText] = useState("");
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const imageRefs = useRef<any[]>([]); // 儲存圖片的引用
   const [currentProgress, setCurrentProgress] = useState({
     grains: 0,
     protein: 0,
@@ -54,12 +58,12 @@ export default function App() {
 
 
   const nutrientNameMap: { [key: string]: string } = {
-    grains: '全榖雜糧類 ',
-    protein: '豆魚蛋肉類 ',
-    dairy: '乳品類 ',
-    vegetables: '蔬菜類 ',
-    fruits: '水果類 ',
-    oils: '油脂與\n堅果種子類 ',
+    grains: '全榖雜糧類\n份量單位為1碗，約為米、大麥等80公克\n',
+    protein: '豆魚蛋肉類\n份量單位為1份，約為黃豆20公克 = 蛋1顆 = 魚35公克 = 去皮雞胸肉30公克\n',
+    dairy: '乳品類\n份量單位為1杯，約為鮮奶240毫升\n',
+    vegetables: '蔬菜類\n份量單位為1碗，約為生菜100公克\n',
+    fruits: '水果類\n份量單位為1份，約為水果100公克 = 香蕉半根\n',
+    oils: '油脂與堅果種子類\n份量單位為1份，約為油類1茶匙\n',
   };
 
   const nutrientIconMap: { [key: string]: any } = {
@@ -88,6 +92,25 @@ export default function App() {
       default:
         return '#ccc'; // 預設顏色
     }
+  };
+
+  const handleLongPress = (index: number, text: string) => {
+    if (imageRefs.current[index]) {
+      imageRefs.current[index].measure(
+        (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+          setModalPosition({
+            top: pageY - 120, // 彈窗顯示在圖片上方120px
+            left: pageX, // 彈窗水平對齊圖片的左側
+          });
+          setInfoText(text); // 設定彈窗的文字內容
+          setInfoVisable(true); // 顯示彈窗
+        }
+      );
+    }
+  };
+
+  const handlePressOut = () => {
+    setInfoVisable(false); // 關閉icon資訊
   };
   
   const nutrients = Object.keys(currentProgress).map((key) => {
@@ -125,12 +148,16 @@ export default function App() {
       <View style={styles.progressBarContainer}>
         {nutrients.map((nutrient, index) => (
               <View key={index} style={styles.progressItem}>
-                {/* <Text style={styles.progressLabel}>
-                  {nutrientNameMap[nutrient.name] || nutrient.name}
-                </Text> */}
+                <Pressable 
+                  key={index}
+                  onLongPress={() => handleLongPress(index, nutrientNameMap[nutrient.name] || nutrient.name)}
+                  onPressOut={handlePressOut}
+                  ref={(ref) => (imageRefs.current[index] = ref)} // 儲存圖片引用
+                  >
                 <Image 
                   style={styles.progressIcon}
                   source={nutrientIconMap[nutrient.name]}/>
+                </Pressable>
                 <Progress.Bar
                   progress={nutrient.progress}
                   width={200}
@@ -143,6 +170,26 @@ export default function App() {
               </View>
         ))}
       </View>
+
+      {/*icon資訊小視窗*/}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={infoVisable}
+        onRequestClose={() => setInfoVisable(false)}
+      >
+        <View style={[
+            styles.modalContent,
+            {
+              position: "absolute",
+              top: modalPosition.top,
+              left: modalPosition.left,
+            },
+          ]}>
+          <Text style={styles.modalText}>{infoText}</Text>
+        </View>
+      </Modal>
+
       {/*遮罩跟提醒文字*/}
       { cover && <View style = {coverstyle}>
         <Text style = {textstyle}>請先輸入基本資料</Text>
@@ -158,7 +205,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#fffbe2',
   },
   lottieAnimationCenter: {
     position: 'absolute',
@@ -193,12 +240,12 @@ const styles = StyleSheet.create({
     left: 10,
   },
   progressIcon: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
   },
   progressBar: {
     height: 8, // 設定固定高度，保持一致
-    alignSelf: 'center', // 進度條與文字靠左
+    alignSelf: 'center', // 進度條改為置中
     marginLeft: 8,
     
   },
@@ -207,6 +254,28 @@ const styles = StyleSheet.create({
     color: '#333',
     marginLeft: 10, // 數字與進度條的距離
     alignSelf: 'center',
+  },
+  
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.0)", // 半透明背景
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 10,
+    alignItems: "flex-start",
+    borderWidth: 2, // 邊框寬度
+    borderColor: "rgba(255, 255, 255, 0.6)", // 邊框顏色
+  },
+  modalText: {
+    fontSize: 12,
+    marginBottom: 5,
+    textAlign: "left",
+    color: "#fff"
   },
 });
 
