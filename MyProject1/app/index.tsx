@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Pressable, Modal} from 'react-native';
+import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Pressable, Modal,} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -33,6 +33,48 @@ export default function App() {
     fruits: 0,
     oils: 0,
   }); // Initial progress state
+  const [foodEntries, setFoodEntries] = useState<any[]>([]);
+
+  const loadFoodEntries = async () => {
+    try {
+  
+      const entriesJson = await AsyncStorage.getItem('DailyfoodEntries');
+      const entries = entriesJson ? JSON.parse(entriesJson) : [];
+      setFoodEntries(entries);
+  
+      const categoryMapping: { [key: string]: keyof typeof currentProgress } = {
+        "乳品類": "dairy",
+        "全榖雜糧類": "grains",
+        "水果類": "fruits",
+        "油脂與堅果種子類": "oils",
+        "蔬菜類": "vegetables",
+        "豆蛋魚肉類": "protein",
+      };
+  
+      const updatedProgress = { ...currentProgress };
+      entries.forEach((entry: any) => {
+        entry.foods.forEach((food: any) => {
+          Object.entries(food.categories).forEach(([key, value]: [string, any]) => {
+            const mappedKey = categoryMapping[key];
+            if (mappedKey) {
+              const numericValue = parseFloat(value);
+              if (!isNaN(numericValue)) {
+                updatedProgress[mappedKey] += numericValue;
+              } else {
+                console.warn(`無效的數值: key = ${key}, value = ${value}`);
+              }
+            }
+          });
+        });
+      });
+  
+      setCurrentProgress(updatedProgress);
+    } catch (error) {
+      console.error('Error loading food entries:', error);
+      Alert.alert('錯誤', '無法讀取飲食記錄');
+    }
+  };
+  
 
   useEffect(() => {
     const fetchNutritionData = async () => {
@@ -54,6 +96,7 @@ export default function App() {
     };
 
     fetchNutritionData();
+    loadFoodEntries();
   }, []);
 
 
@@ -124,24 +167,52 @@ export default function App() {
       progress: max ? Math.min(current / max, 1) : 0, // 進度條比例
       color: getColorForNutrient(nutrientKey), // 根據營養類型設定顏色
     };
-  })
 
+  })
+  const [currentAnimation, setCurrentAnimation] = useState(require('@/assets/animations/chicken.json')); // 動畫狀態
+  const [isLooping, setIsLooping] = useState(true); // 動畫循環狀態
+  const [animationStyles, setAnimationStyles] = useState(styles.lottieAnimationCenter); // 動態樣式
+  const playAndNavigate = () => {
+    setIsVisible(false);
+    setCurrentAnimation(require('@/assets/animations/flying_test.json')); // 切換到按鈕動畫
+    setIsLooping(false); // 停止循環
+    setAnimationStyles(styles.lottieAnimationButton); // 切換到按鈕動畫的樣式
+  };  
+  const [isVisible, setIsVisible] = useState(true); // 控制按鈕的顯示狀態
+
+  const handleAnimationFinish = () => {
+    if (!isLooping) {
+      setTimeout(() => {
+        router.push('/camera'); // 跳轉到相機頁面
+        setCurrentAnimation(require('@/assets/animations/chicken.json')); // 恢復元動畫
+        setIsLooping(true); // 恢復循環播放
+        setAnimationStyles(styles.lottieAnimationCenter); // 恢復元動畫的樣式
+        setIsVisible(true);
+      }, 1000); // 延遲 1 秒
+    }
+  };
 
   return (
     <View style={styles.container}>
       {/* Lottie 動畫 */}
       
       <LottieView
-        source={require('@/assets/animations/chicken.json')}
+        source={currentAnimation}
         autoPlay
-        loop
-        style={styles.lottieAnimationCenter}
+        loop={isLooping}
+        onAnimationFinish={handleAnimationFinish}
+        style={animationStyles} // 動態樣式
       />
       {/* 相機按鈕 */}
       <View style={styles.buttonTopRight}>
-        <TouchableOpacity onPress={() => router.push('/camera')}>
-          <TabBarIcon name="camera-outline" color="#000" />
+      {isVisible && ( 
+        <TouchableOpacity onPress={playAndNavigate}>
+          <Image 
+            source={require('@/assets/images/window.png')} // 替換成你的圖片檔路徑
+            style={styles.image} 
+          />
         </TouchableOpacity>
+        )}
       </View>
 
       {/* 營養素進度條 */}
@@ -214,10 +285,22 @@ const styles = StyleSheet.create({
     width: 600,
     height: 600,
   },
+  lottieAnimationButton: {
+    position: 'absolute',
+    top: '10%',
+    width: 600,
+    height: 600,
+    transform: [{ translateY: -60 }], // 特定偏移
+  },
   buttonTopRight: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 5,
+    right: -11,
+  },
+  image: {
+    width: 160,
+    height: 160,
+    resizeMode: 'contain',
   },
   progressBarContainer: {
     position: 'absolute',

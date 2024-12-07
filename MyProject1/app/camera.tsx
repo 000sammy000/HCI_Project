@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://192.168.6.102:5000/analyzeimg', //change into your IP address
+        'http://192.168.0.74:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
