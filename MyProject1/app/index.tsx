@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
 
 const coverstyle: React.CSSProperties = { //遮罩透明黑底
   position: 'fixed',
-  bottom: -230,
+  bottom: -260,
   left: 0,
   width: '95%',
   height: '30%',
