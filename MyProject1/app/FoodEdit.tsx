@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import ImageUploader from './camera';
 
-const FoodEditScreen = ({ foodData, onClose }) => {
+const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
   const original_Data = foodData;
   const [editedData, setEditedData] = useState(foodData);  //send food data from camera.tsx
 
@@ -37,8 +36,35 @@ const FoodEditScreen = ({ foodData, onClose }) => {
 
   const handleSave = () => {
     console.log('Saved Data:', editedData);
+    const hasEmptyTitle = editedData.some((item) => item.title.trim() === '' || item.title.trim() === "");
+    if(hasEmptyTitle){
+      alert('有食材為空');
+      return;
+    }
+    onSave(editedData); 
     onClose(); // Close the modal
   };
+  const addNewItem = () => {
+    const newItem = { 
+      "title": "",
+      "categories": {
+                "全榖雜糧類": "0",
+                "豆蛋魚肉類": "0",
+                "乳品類": "0",
+                "蔬菜類": "0",
+                "水果類": "0",
+                "油脂與堅果種子類": "0"
+                } 
+    };
+    setEditedData([...editedData, newItem]);
+  };
+
+  const handleDelete = (index) => {
+    const updatedItems = editedData.filter((_, i) => i !== index);
+    setEditedData(updatedItems);
+  };
+
+  
 
   return (
     <ScrollView style={styles.scrollContainer}>
@@ -51,6 +77,7 @@ const FoodEditScreen = ({ foodData, onClose }) => {
             value={foodItem.title}
             onChangeText={(newTitle) => handleTitleChange(index, newTitle)}
           />
+          <Button title="Delete" onPress={() => handleDelete(index)} />
           <View style={styles.container}>
             {Object.entries(foodItem.categories).map(([category, value]) => (
               <View key={category} style={styles.inputContainer}>
@@ -72,6 +99,7 @@ const FoodEditScreen = ({ foodData, onClose }) => {
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={handleSave} />
         <Button title="Reset" onPress={handleReset} color="red" /> {/* Reset Button */}
+        <Button title="New" onPress={addNewItem} />
         <Button title="Close" onPress={onClose} />
       </View>
     </ScrollView>

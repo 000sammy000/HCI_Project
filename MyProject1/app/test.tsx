@@ -77,7 +77,8 @@ export default function CalorieCalculator() {
   }, [height, weight]); // 監聽身高與體重的變化*/
 
   const calculateBMIAndCalories = () => {
-    if (height && weight) {
+    if (300 >= parseFloat(height) && parseFloat(height) >= 40 && 300 >= parseFloat(weight) && parseFloat(weight) >= 20) {
+      //身高限於40~300，體重限於20~300
       const heightInMeters = parseFloat(height) / 100;
       const weightInKg = parseFloat(weight);
 

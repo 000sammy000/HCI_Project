@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal,View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
+import { Modal, Alert, View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -67,10 +67,10 @@ export default function ImageUploader() {
     }
   }
 
-  const calculateCategoryTotals = (foodData) => {
+  const calculateCategoryTotals = (Data) => {
     const totalCategories: { [key: string]: number } = {};
   
-    foodData.forEach((food) => {
+    Data.forEach((food) => {
       Object.entries(food.categories).forEach(([category, value]) => {
         const numericValue = parseFloat(value);
         if (!totalCategories[category]) {
@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://172.20.10.4:5000/analyzeimg', //change into your IP address
+        'http://192.168.31.116:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -141,16 +141,17 @@ export default function ImageUploader() {
     }
   };
 
-  const saveFoodData = async (foodData) => {
+  const saveFoodData = async (EditfoodData) => {  //不要取名為foodData
     const entry = {
       timestamp: new Date().toISOString(),
-      foods: foodData,
+      foods: EditfoodData,
     };
     const existingDailyEntriesJson = await AsyncStorage.getItem('DailyfoodEntries');
     const existingDailyEntries = existingDailyEntriesJson ? JSON.parse(existingDailyEntriesJson) : [];
     
     const updatedEntries = [...existingDailyEntries, entry];
     await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
+<<<<<<< HEAD
     console.log('Saved food data:', updatedEntries);
 
     // Update daily progress
@@ -205,44 +206,55 @@ export default function ImageUploader() {
     setFoodData(updatedData);
     saveFoodData(updatedData);
     const result = calculateCategoryTotals(foodData);
+=======
+    await AsyncStorage.setItem('shouldPlayAnimation', 'true');
+
+    const result = calculateCategoryTotals(EditfoodData);
+>>>>>>> ddb0c775dec33d1452a41b1a772b1b9a6078cb17
     if (result["蔬菜類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${sv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。春天是${sv[rI]}的季節可以多吃點!`);
       }
       else if(6 <= currentMonth && currentMonth <= 9){
         const rI = Math.floor(Math.random() * suv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${suv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。夏天是${suv[rI]}的季節可以多吃點!`);
       }
       else if(10 <= currentMonth && currentMonth <= 11){
         const rI = Math.floor(Math.random() * fv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${fv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。秋天是${fv[rI]}的季節可以多吃點!`);
       }
       else{
         const rI = Math.floor(Math.random() * wv.length);
-        alert(`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
+        Alert.alert('建議',`這餐的蔬菜吃得比較少。冬天是${wv[rI]}的季節可以多吃點!`);
       }
     }
     else if (result["水果類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sf.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${sf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。春天推薦吃${sf[rI]}!`);
       }
       else if(6 <= currentMonth && currentMonth <= 9){
         const rI = Math.floor(Math.random() * suv.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${suf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。夏天推薦吃${suf[rI]}!`);
       }
       else if(10 <= currentMonth && currentMonth <= 11){
         const rI = Math.floor(Math.random() * ff.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${ff[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。秋天推薦吃${ff[rI]}!`);
       }
       else{
         const rI = Math.floor(Math.random() * wf.length);
-        alert(`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
+        Alert.alert('建議',`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
       }
     }
+    console.log('Saved food data:', updatedEntries);
+  }
+
+  const closeFoodEdit = () => {
+    setFoodEditVisible(false);
+    
     // save food data to local storage
-    saveFoodData(foodData);
+    //saveFoodData(foodData);
   };
 
   return (
@@ -253,11 +265,11 @@ export default function ImageUploader() {
       <Button title="拍照" onPress={takePhoto} />
       <Button title="分析圖片" onPress={llm_analyze} />
 
-      {loading && (
+      {loading ?  (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0066ff" />
         </View>
-      )}
+      ): null }
 
       <Modal
         visible={isFoodEditVisible}
@@ -265,8 +277,9 @@ export default function ImageUploader() {
         onRequestClose={() => closeFoodEdit(foodData)} // Default pass current data
       >
         <FoodEditScreen
-          foodData={foodData} // Pass the API response's food_data here
+          foodData={foodData} // gpt回傳分析結果傳去編輯畫面
           onClose={closeFoodEdit} // Pass the close function
+          onSave={saveFoodData}
         />
       </Modal>
       <View style={styles.buttonTopRight}>
@@ -275,9 +288,9 @@ export default function ImageUploader() {
         </TouchableOpacity>
       </View>
 
-      {imageUri && (
+      {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} />
-      )}
+      ) : null }
     </View>
   );
 }

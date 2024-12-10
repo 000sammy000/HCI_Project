@@ -4,6 +4,7 @@ from io import BytesIO
 import requests
 import json
 from keys import OPENAI_API_KEY
+
 from openai import OpenAI
 from PIL import Image
 from pydantic import BaseModel
@@ -47,11 +48,9 @@ def analyze_food(bimage):
                 "title": "菠菜",
                 "categories": {
                 "全榖雜糧類": "0",
-                "蔬菜類": "1.5"
-                "全榖雜糧類": "0",
                 "豆蛋魚肉類": "0",
                 "乳品類": "0",
-                "蔬菜類": "0",
+                "蔬菜類": "1.5",
                 "水果類": "0",
                 "油脂與堅果種子類": "0"
                 }
@@ -59,8 +58,6 @@ def analyze_food(bimage):
             {
                 "title": "炸雞腿",
                 "categories": {
-                "全榖雜糧類": "0",
-                "蔬菜類": "0.0"
                 "全榖雜糧類": "0",
                 "豆蛋魚肉類": "3.5",
                 "乳品類": "0",
