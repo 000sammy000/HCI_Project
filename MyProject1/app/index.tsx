@@ -25,6 +25,11 @@ export default function App() {
   const [infoText, setInfoText] = useState("");
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const imageRefs = useRef<any[]>([]); // 儲存圖片的引用
+  const [currentTime, setCurrentTime] = useState<string>("");//抓取當前時間
+  const [targetDate, setTargetDate] = useState<Date>(
+    new Date(2024, 11, 6, 0, 0, 0) // 初始目標日期
+  );//紀錄週期結束時間
+  const [CGVisible, setCGVisible] = useState(false);
   const [currentProgress, setCurrentProgress] = useState({
     grains: 0,
     protein: 0,
@@ -98,6 +103,36 @@ export default function App() {
     fetchNutritionData();
     loadFoodEntries();
   }, []);
+
+  // 更新當前時間 & 檢測是否超過七天
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const timeString = now.toLocaleDateString();
+      setCurrentTime(timeString);
+
+      // 檢查當前時間是否超過目標時間
+      if (now >= targetDate && !infoVisable) {
+        setCGVisible(true);
+        // 更新目標時間為當前日期的 7 天後的午夜 00:00
+        const newTargetDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 7,
+          0,
+          0,
+          0
+        );
+        setTargetDate(newTargetDate);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval); // 清除定時器
+  }, [CGVisible]);
+
+  const closeModal = () => {
+    setCGVisible(false);
+  };
 
 
   const nutrientNameMap: { [key: string]: string } = {
@@ -283,14 +318,14 @@ export default function App() {
         onRequestClose={() => setInfoVisable(false)}
       >
         <View style={[
-            styles.modalContent,
+            styles.infoContent,
             {
               position: "absolute",
               top: modalPosition.top,
               left: modalPosition.left,
             },
           ]}>
-          <Text style={styles.modalText}>{infoText}</Text>
+          <Text style={styles.infoText}>{infoText}</Text>
         </View>
       </Modal>
 
@@ -300,6 +335,29 @@ export default function App() {
       </View>}
       
       <Navigation />
+
+      {/*當前日期*/}
+      <View style={styles.timeContainer}>
+        <Text style={styles.timeText}>{currentTime}</Text>
+      </View>
+
+      {/* CG視窗 */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={CGVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.CGContent}>
+            <Text style={styles.CGText}>時間已到！已過指定日期的午夜。</Text>
+            <Pressable style={styles.closeButton} onPress={closeModal}>
+              <Text style={styles.closeButtonText}>關閉</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -372,13 +430,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.0)", // 半透明背景
-  },
-  modalContent: {
+  infoContent: {
     width: 300,
     padding: 20,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
@@ -387,7 +439,7 @@ const styles = StyleSheet.create({
     borderWidth: 2, // 邊框寬度
     borderColor: "rgba(255, 255, 255, 0.6)", // 邊框顏色
   },
-  modalText: {
+  infoText: {
     fontSize: 12,
     marginBottom: 5,
     textAlign: "left",
@@ -397,6 +449,50 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 280,
     left: 150,
+  },
+  timeContainer: {
+    position: "absolute",
+    top: 50, // 固定在螢幕頂部
+    alignSelf: "center",
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#007BFF",
+  },
+  timeText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // 半透明背景
+  },
+  CGContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#007BFF",
+    alignItems: "center",
+  },
+  CGText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  closeButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 
