@@ -99,43 +99,6 @@ export default function App() {
     loadFoodEntries();
   }, []);
 
-<<<<<<< HEAD
-  // const currentProgress = {
-  //   grains: 2.4, // 當前攝取量（例如來自伺服器或本地計算）
-  //   protein: 3.5,
-  //   dairy: 1.0,
-  //   vegetables: 3.0,
-  //   fruits: 2.5,
-  //   oils: 1.0,
-  // };
-  const [currentProgress, setCurrentProgress] = useState({
-    grains: 0,
-    protein: 0,
-    dairy: 0,
-    vegetables: 0,
-    fruits: 0,
-    oils: 0,
-  });
-  
-  // Function to fetch progress data
-  const fetchDailyProgress = async () => {
-    try {
-      const storedProgress = await AsyncStorage.getItem('DailyProgress');
-      if (storedProgress) {
-        setCurrentProgress(JSON.parse(storedProgress));
-      }
-    } catch (error) {
-      console.error('Error fetching daily progress:', error);
-    }
-  };
-  
-  // refetch progress data when touch a button
-  const handleRefresh = () => {
-    fetchDailyProgress();
-  };
-  
-=======
->>>>>>> ddb0c775dec33d1452a41b1a772b1b9a6078cb17
 
   const nutrientNameMap: { [key: string]: string } = {
     grains: '全榖雜糧類\n份量單位為1碗，約為米、大麥等80公克\n',
@@ -280,10 +243,10 @@ export default function App() {
         )}
       </View>
 
-      {/* 重新整理按鈕 */}
+      {/* 重新整理按鈕
         <View style={styles.refreshButtonContainer}>
           <Button title="重新整理" onPress={handleRefresh} />
-        </View>
+        </View> */}
 
         {/* 營養素進度條 */}
       <View style={styles.progressBarContainer}>

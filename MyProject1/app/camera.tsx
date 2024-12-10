@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://192.168.31.116:5000/analyzeimg', //change into your IP address
+        'http://172.18.109.145:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -151,66 +151,9 @@ export default function ImageUploader() {
     
     const updatedEntries = [...existingDailyEntries, entry];
     await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
-<<<<<<< HEAD
-    console.log('Saved food data:', updatedEntries);
-
-    // Update daily progress
-    const progress = {
-      grains: 0,
-      protein: 0,
-      dairy: 0,
-      vegetables: 0,
-      fruits: 0,
-      oils: 0,
-    }
-
-    const existingDailyProgressJson = await AsyncStorage.getItem('DailyProgress');
-    const existingDailyProgress = existingDailyProgressJson ? JSON.parse(existingDailyProgressJson) : progress;
-    console.log('Previous daily progress:', existingDailyProgress);
-
-    // Iterate over the foodData and update progress
-    foodData.forEach((foodItem) => {
-      // Assuming each foodItem has a title and categories (with quantities)
-      Object.entries(foodItem.categories).forEach(([category, value]) => {
-      const numericValue = parseFloat(value); // Convert value to number
-      if (numericValue > 0) { // Only update if the value is greater than zero
-        if (category === "豆魚蛋肉類") {
-        existingDailyProgress.protein += numericValue;
-        }
-        else if (category === "乳品類") {
-        existingDailyProgress.dairy += numericValue;
-        }
-        else if (category === "蔬菜類") {
-        existingDailyProgress.vegetables += numericValue;
-        }
-        else if (category === "水果類") {
-        existingDailyProgress.fruits += numericValue;
-        }
-        else if (category === "油脂與堅果種子類") {
-        existingDailyProgress.oils += numericValue;
-        }
-        else if (category === "全榖雜糧類") {
-        existingDailyProgress.grains += numericValue;
-        }
-      }
-      });
-    });
-
-    await AsyncStorage.setItem('DailyProgress', JSON.stringify(existingDailyProgress));
-    console.log('Saved daily progress:', existingDailyProgress);
-
-  }
-
-  const closeFoodEdit = (updatedData: any) => {
-    setFoodEditVisible(false);
-    setFoodData(updatedData);
-    saveFoodData(updatedData);
-    const result = calculateCategoryTotals(foodData);
-=======
     await AsyncStorage.setItem('shouldPlayAnimation', 'true');
 
     const result = calculateCategoryTotals(EditfoodData);
->>>>>>> ddb0c775dec33d1452a41b1a772b1b9a6078cb17
     if (result["蔬菜類"] < 1) {
       if (3 <= currentMonth && currentMonth <= 5){
         const rI = Math.floor(Math.random() * sv.length);

@@ -77,7 +77,6 @@ const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
             value={foodItem.title}
             onChangeText={(newTitle) => handleTitleChange(index, newTitle)}
           />
-          <Button title="Delete" onPress={() => handleDelete(index)} />
           <View style={styles.container}>
             {Object.entries(foodItem.categories).map(([category, value]) => (
               <View key={category} style={styles.inputContainer}>
@@ -94,13 +93,14 @@ const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
               </View>
             ))}
           </View>
+          <Button title="Delete" onPress={() => handleDelete(index)} />
         </View>
       ))}
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={handleSave} />
-        <Button title="Reset" onPress={handleReset} color="red" /> {/* Reset Button */}
-        <Button title="New" onPress={addNewItem} />
-        <Button title="Close" onPress={onClose} />
+        <Button title="取消" onPress={onClose} />
+        <Button title="重設" onPress={handleReset} color="red" /> {/* Reset Button */}
+        <Button title="新增" onPress={addNewItem} />
+        <Button title="儲存" onPress={handleSave} />
       </View>
     </ScrollView>
   );
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginTop: 0,
+    marginTop: 30,
     marginBottom: 10,
   },
   foodItemContainer: {
