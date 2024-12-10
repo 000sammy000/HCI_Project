@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://192.168.0.74:5000/analyzeimg', //change into your IP address
+        'http://192.168.31.116:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -151,6 +151,7 @@ export default function ImageUploader() {
     
     const updatedEntries = [...existingDailyEntries, entry];
     await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify(updatedEntries));
+    await AsyncStorage.setItem('shouldPlayAnimation', 'true');
 
     const result = calculateCategoryTotals(EditfoodData);
     if (result["蔬菜類"] < 1) {

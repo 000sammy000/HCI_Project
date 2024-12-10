@@ -172,25 +172,53 @@ export default function App() {
   const [currentAnimation, setCurrentAnimation] = useState(require('@/assets/animations/chicken.json')); // 動畫狀態
   const [isLooping, setIsLooping] = useState(true); // 動畫循環狀態
   const [animationStyles, setAnimationStyles] = useState(styles.lottieAnimationCenter); // 動態樣式
+  const [GoToCamera, setGoToCamera] = useState(false);
   const playAndNavigate = () => {
     setIsVisible(false);
-    setCurrentAnimation(require('@/assets/animations/flying_test.json')); // 切換到按鈕動畫
+    setGoToCamera(true);
+    setCurrentAnimation(require('@/assets/animations/flying.json')); // 切換到按鈕動畫
     setIsLooping(false); // 停止循環
     setAnimationStyles(styles.lottieAnimationButton); // 切換到按鈕動畫的樣式
   };  
   const [isVisible, setIsVisible] = useState(true); // 控制按鈕的顯示狀態
 
   const handleAnimationFinish = () => {
-    if (!isLooping) {
+    if (GoToCamera) {
       setTimeout(() => {
         router.push('/camera'); // 跳轉到相機頁面
         setCurrentAnimation(require('@/assets/animations/chicken.json')); // 恢復元動畫
         setIsLooping(true); // 恢復循環播放
         setAnimationStyles(styles.lottieAnimationCenter); // 恢復元動畫的樣式
         setIsVisible(true);
+        setGoToCamera(false);
       }, 1000); // 延遲 1 秒
     }
   };
+
+  const BackAnimation = () => {
+    setIsVisible(false);
+    setCurrentAnimation(require('@/assets/animations/back.json')); // 切換到按鈕動畫
+    setIsLooping(false); // 停止循環
+    setAnimationStyles(styles.lottieAnimationButton); // 切換到按鈕動畫的樣式
+  }; 
+  useEffect(() => {
+    const checkAnimationStatus = async () => {
+      const animationStatus = await AsyncStorage.getItem('shouldPlayAnimation');
+      if (animationStatus === 'true') {
+        console.log('play animation');
+        BackAnimation();
+        await AsyncStorage.setItem('shouldPlayAnimation', 'false'); // Reset the status
+        setTimeout(() => {
+          setCurrentAnimation(require('@/assets/animations/chicken.json')); // 恢復元動畫
+          setIsLooping(true); // 恢復循環播放
+          setAnimationStyles(styles.lottieAnimationCenter); // 恢復元動畫的樣式
+          setIsVisible(true);
+          setGoToCamera(false);
+        }, 1000); // 延遲 1 秒
+      }
+    };
+    checkAnimationStatus();
+  }, []);
 
   return (
     <View style={styles.container}>

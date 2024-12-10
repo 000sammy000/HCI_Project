@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import ImageUploader from './camera';
 
-const FoodEditScreen = ({ foodData, onClose }) => {
+const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
   const original_Data = foodData;
   const [editedData, setEditedData] = useState(foodData);  //send food data from camera.tsx
+
   const handleTitleChange = (index, newTitle) => {
     setEditedData((prev) => {
       const updatedData = [...prev];
@@ -41,9 +41,9 @@ const FoodEditScreen = ({ foodData, onClose }) => {
       alert('有食材為空');
       return;
     }
+    onSave(editedData); 
     onClose(); // Close the modal
   };
-
   const addNewItem = () => {
     const newItem = { 
       "title": "",
@@ -63,6 +63,8 @@ const FoodEditScreen = ({ foodData, onClose }) => {
     const updatedItems = editedData.filter((_, i) => i !== index);
     setEditedData(updatedItems);
   };
+
+  
 
   return (
     <ScrollView style={styles.scrollContainer}>
