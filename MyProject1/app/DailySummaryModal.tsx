@@ -72,10 +72,10 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
 
             {mostSignificantDeviation && (
               <View style={styles.recommendationContainer}>
-                <Text style={styles.recommendationTitle}>特別建議</Text>
+                <Text style={styles.recommendationTitle}>小雞想說...</Text>
                 <Text style={styles.recommendationText}>
                   {mostSignificantDeviation.name}攝取與建議量差異最大，
-                  {mostSignificantDeviation.difference < 0 ? '建議增加攝取' : '建議減少攝取'}。
+                  {mostSignificantDeviation.difference < 0 ? '我好想吃喔～' : '我吃不下了...'}。
                 </Text>
               </View>
             )}
@@ -85,7 +85,7 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
             style={styles.closeButton} 
             onPress={onClose}
           >
-            <Text style={styles.closeButtonText}>關閉</Text>
+            <Text style={styles.closeButtonText}>確認</Text>
           </TouchableOpacity>
         </View>
       </View>
