@@ -6,6 +6,7 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import Navigation from './navigation';
 import * as Progress from 'react-native-progress'; // 引入進度條庫
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DailySummaryModal from './DailySummaryModal';
 
 
 const defaultNutrition = {
@@ -30,6 +31,7 @@ export default function App() {
     new Date(2024, 11, 6, 0, 0, 0) // 初始目標日期
   );//紀錄週期結束時間
   const [CGVisible, setCGVisible] = useState(false);
+  // 紀錄食物日攝取量、週攝取量、每日結算頁面
   const [currentProgress, setCurrentProgress] = useState({
     grains: 0,
     protein: 0,
@@ -39,6 +41,7 @@ export default function App() {
     oils: 0,
   }); // Initial progress state
   const [foodEntries, setFoodEntries] = useState<any[]>([]);
+  const [isDailySummaryVisible, setIsDailySummaryVisible] = useState(false);
 
   const loadFoodEntries = async () => {
     try {
@@ -56,7 +59,14 @@ export default function App() {
         "豆蛋魚肉類": "protein",
       };
   
-      const updatedProgress = { ...currentProgress };
+      const updatedProgress = ({
+        grains: 0,
+        protein: 0,
+        dairy: 0,
+        vegetables: 0,
+        fruits: 0,
+        oils: 0,
+      });
       entries.forEach((entry: any) => {
         entry.foods.forEach((food: any) => {
           Object.entries(food.categories).forEach(([key, value]: [string, any]) => {
@@ -111,6 +121,29 @@ export default function App() {
       const timeString = now.toLocaleDateString();
       setCurrentTime(timeString);
 
+      // 日結算
+      // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
+      if (now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+        const settlementHandler = async () => {
+          // 獲得當前食物進度
+          const tempFoodEntries = [...foodEntries];
+          const tempWeekData = await AsyncStorage.getItem('WeeklyfoodEntries');
+          const parsedWeekData = tempWeekData ? JSON.parse(tempWeekData) : [];
+      
+          // 更新 weekFoodEntries
+          const updatedWeekData = [...parsedWeekData, ...tempFoodEntries];
+          await AsyncStorage.setItem('WeeklyfoodEntries', JSON.stringify(updatedWeekData));
+
+          setIsDailySummaryVisible(true);
+        };
+        // 清空日進度、progress
+        AsyncStorage.setItem('DailyfoodEntries', JSON.stringify([]));
+        setFoodEntries([]);
+
+        settlementHandler();
+      }
+
+      // 週結算           
       // 檢查當前時間是否超過目標時間
       if (now >= targetDate && !infoVisable) {
         setCGVisible(true);
@@ -278,10 +311,13 @@ export default function App() {
         )}
       </View>
 
-      {/* 重新整理按鈕
-        <View style={styles.refreshButtonContainer}>
-          <Button title="重新整理" onPress={handleRefresh} />
-        </View> */}
+      {/* 每日結算彈出視窗 */}
+      <DailySummaryModal
+        visible={isDailySummaryVisible}
+        onClose={() => setIsDailySummaryVisible(false)}
+        currentProgress={currentProgress}
+        targetProgress={nutritionData || defaultNutrition}
+      />
 
         {/* 營養素進度條 */}
       <View style={styles.progressBarContainer}>
