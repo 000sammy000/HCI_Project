@@ -15,21 +15,22 @@ export default function CalorieCalculator() {
   const [nutrition, setNutrition] = useState<any>(null);
   const router = useRouter();
 
-  const saveData = async () => {
+  const saveData = async (calculatedNutrition) => {
     try {
       const data = {
         height,
         weight,
         activityLevel,
         calorieIntake,
-        nutrition
+        nutrition: calculatedNutrition,
       };
       await AsyncStorage.setItem('userData', JSON.stringify(data));
+      
       Alert.alert('成功', '資料已儲存', [
         {
           text: '確定',
           onPress: () => {
-            router.push('/'); // 儲存成功後導航到首頁（假設首頁路徑是 "/index"）
+            //router.push('/'); // 儲存成功後導航到首頁（假設首頁路徑是 "/index"）
           },
         },
       ]);
@@ -64,19 +65,13 @@ export default function CalorieCalculator() {
       console.error('清除失敗', error);
     }
   };
-
+  
   // 當元件載入時自動讀取資料
   useEffect(() => {
     loadData();
   }, []);
 
-  /*useEffect(() => {
-    if (height && weight) {
-      calculateBMIAndCalories(); // 自動重新計算
-    }
-  }, [height, weight]); // 監聽身高與體重的變化*/
-
-  const calculateBMIAndCalories = () => {
+  const calculateBMIAndCalories = (callback) => {
     if (300 >= parseFloat(height) && parseFloat(height) >= 40 && 300 >= parseFloat(weight) && parseFloat(weight) >= 20) {
       //身高限於40~300，體重限於20~300
       const heightInMeters = parseFloat(height) / 100;
@@ -111,10 +106,20 @@ export default function CalorieCalculator() {
 
       const nutri = interpolateNutrition(adjustedCalorie);
       setNutrition(nutri);
-
+      // Run the callback after updates
+      if (typeof callback === 'function') {
+        callback(nutri);
+      }
+      
     } else {
       Alert.alert('錯誤', '請輸入有效的身高和體重');
     }
+  };
+
+  const Ensure_SaveData = () => { //when save button pressed, leading to it
+    calculateBMIAndCalories((calculatedNutrition) => {
+      saveData(calculatedNutrition); 
+    });
   };
 
   return (
@@ -152,8 +157,7 @@ export default function CalorieCalculator() {
             <Picker.Item label="重度運動" value="heavy" />
           </Picker>
 
-          <Button title="計算" onPress={calculateBMIAndCalories} />
-          <Button title="儲存資料" onPress={saveData} />
+          <Button title="載入營養目標" onPress={Ensure_SaveData} />
           <Button title="清除所有資料" onPress={clearData} />
 
           {/* 顯示結果或提示 */}
