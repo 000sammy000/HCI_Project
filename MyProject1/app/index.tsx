@@ -27,9 +27,8 @@ export default function App() {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const imageRefs = useRef<any[]>([]); // 儲存圖片的引用
   const [currentTime, setCurrentTime] = useState<string>("");//抓取當前時間
-  const [targetDate, setTargetDate] = useState<Date>(
-    new Date(2024, 11, 6, 0, 0, 0) // 初始目標日期
-  );//紀錄週期結束時間
+  const [targetDate, setTargetDate] = useState<Date | null>(null);//紀錄週期結束時間
+  const [dayCount, setDayCount] = useState<number | null>(null);//計算當前為第幾天
   const [CGVisible, setCGVisible] = useState(false);
   // 紀錄食物日攝取量、週攝取量、每日結算頁面
   const [currentProgress, setCurrentProgress] = useState({
@@ -90,8 +89,9 @@ export default function App() {
     }
   };
   
-
+// 讀儲存資料
   useEffect(() => {
+    // 讀營養建議
     const fetchNutritionData = async () => {
       try {
         const storedData = await AsyncStorage.getItem('userData');
@@ -112,14 +112,35 @@ export default function App() {
 
     fetchNutritionData();
     loadFoodEntries();
+
+    // 讀養成週期
+    const initializeTargetDate = async () => {
+      try {
+        const storedDate = await AsyncStorage.getItem("targetDate");
+        if (storedDate) {
+          setTargetDate(new Date(storedDate));
+        } else {
+          // 如果未儲存目標時間，設置為 7 天後的午夜
+          const initialDate = new Date();
+          initialDate.setDate(initialDate.getDate() + 7);
+          initialDate.setHours(0, 0, 0, 0);
+          setTargetDate(initialDate);
+          await AsyncStorage.setItem("targetDate", initialDate.toISOString());
+        }
+      } catch (error) {
+        Alert.alert("錯誤", "初始化目標時間失敗！");
+      }
+    };
+
+    initializeTargetDate();
   }, []);
 
   // 更新當前時間 & 檢測是否超過七天
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       const now = new Date();
-      const timeString = now.toLocaleDateString();
-      setCurrentTime(timeString);
+      const dateString = now.toLocaleDateString(); // 僅顯示年月日
+      setCurrentTime(dateString);
 
       // 日結算
       // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
@@ -143,25 +164,38 @@ export default function App() {
         settlementHandler();
       }
 
-      // 週結算           
-      // 檢查當前時間是否超過目標時間
-      if (now >= targetDate && !infoVisable) {
-        setCGVisible(true);
-        // 更新目標時間為當前日期的 7 天後的午夜 00:00
-        const newTargetDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() + 7,
-          0,
-          0,
-          0
-        );
-        setTargetDate(newTargetDate);
+      // 周結算
+      if (targetDate) {
+        // 計算當前日期與目標日期的差距天數
+        const diffTime = targetDate.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 向上取整
+        setDayCount(8 - diffDays);
+
+        // 如果到達目標時間
+        if (now >= targetDate) {
+          setCGVisible(true);
+
+          // 更新目標時間為 7 天後的午夜
+          const newTargetDate = new Date();
+          newTargetDate.setDate(newTargetDate.getDate() + 7);
+          newTargetDate.setHours(0, 0, 0, 0);
+          setTargetDate(newTargetDate);
+
+          try {
+            await AsyncStorage.setItem(
+              "targetDate",
+              newTargetDate.toISOString()
+            );
+          } catch (error) {
+            Alert.alert("錯誤", "儲存新目標時間失敗！");
+          }
+        }
       }
+
     }, 1000);
 
     return () => clearInterval(interval); // 清除定時器
-  }, [CGVisible]);
+  }, [targetDate]);
 
   const closeModal = () => {
     setCGVisible(false);
@@ -375,6 +409,7 @@ export default function App() {
       {/*當前日期*/}
       <View style={styles.timeContainer}>
         <Text style={styles.timeText}>{currentTime}</Text>
+        <Text style={styles.countText}>Day {dayCount}</Text>
       </View>
 
       {/* CG視窗 */}
@@ -386,9 +421,9 @@ export default function App() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.CGContent}>
-            <Text style={styles.CGText}>時間已到！已過指定日期的午夜。</Text>
+            <Text style={styles.CGText}>觸發CG</Text>
             <Pressable style={styles.closeButton} onPress={closeModal}>
-              <Text style={styles.closeButtonText}>關閉</Text>
+              <Text style={styles.closeButtonText}>結束</Text>
             </Pressable>
           </View>
         </View>
@@ -488,17 +523,18 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     position: "absolute",
-    top: 50, // 固定在螢幕頂部
+    top: 75,
+    left: 20,
     alignSelf: "center",
     backgroundColor: "#fff",
     padding: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#007BFF",
   },
   timeText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  countText: {
     fontSize: 24,
-    fontWeight: "bold",
     color: "#333",
   },
   modalOverlay: {
