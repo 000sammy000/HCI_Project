@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Navigation from './navigation';
 
 const Surprise: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -56,6 +57,7 @@ const Surprise: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <Navigation />
       <Text style={styles.title}>現在時間</Text>
       <Text style={styles.date}>{currentDate}</Text>
       <Text style={styles.time}>

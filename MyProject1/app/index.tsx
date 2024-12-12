@@ -408,7 +408,6 @@ export default function App() {
 
       {/*當前日期*/}
       <View style={styles.timeContainer}>
-        <Text style={styles.timeText}>{currentTime}</Text>
         <Text style={styles.countText}>Day {dayCount}</Text>
       </View>
 
