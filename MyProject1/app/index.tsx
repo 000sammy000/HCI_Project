@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Pressable, Modal,} from 'react-native';
+import { ImageBackground,Button, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Pressable, Modal,} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -323,6 +323,11 @@ export default function App() {
   }, []);
 
   return (
+    <ImageBackground 
+      source={require('@/assets/images/field.jpg')} // Replace with your image path
+      style={styles.background}
+      resizeMode="cover"
+      >
     <View style={styles.container}>
       {/* Lottie 動畫 */}
       
@@ -429,6 +434,7 @@ export default function App() {
       </Modal>
 
     </View>
+    </ImageBackground>
   );
 }
 
@@ -437,7 +443,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fffbe2',
+    //backgroundColor: '#fffbe2', 
+  },
+  background: {//背景
+    flex: 1,
+    resizeMode: 'cover', 
   },
   lottieAnimationCenter: {
     position: 'absolute',
