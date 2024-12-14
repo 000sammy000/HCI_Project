@@ -7,6 +7,7 @@ from flask_cors import CORS
 from PIL import Image
 
 from img2data import get_nutrition
+from analyze import analyze_food_entries
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,7 +27,7 @@ def process_data():
     return jsonify({"processed_data": processed_data})
 
 
-@app.route("/analyzeimg", methods=["POST"])
+@app.route("/analyzeimg", methods=["POST"]) 
 def upload_image():
     try:
         # Get the form-data from the request
@@ -55,6 +56,9 @@ def upload_image():
     except Exception as e:
         print(f"Error processing request: {str(e)}")  # Log the error
         return jsonify({"error": "Internal server error"}), 500
+
+# Include food analysis route
+app.add_url_rule('/analyze-food-entries', view_func=analyze_food_entries, methods=['POST'])
 
 
 if __name__ == "__main__":

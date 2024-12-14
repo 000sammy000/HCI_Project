@@ -21,7 +21,7 @@ export default function Navigation() {
 
       <View style={styles.buttonTopList}>
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity onPress={() => router.push('/')}>
+          <TouchableOpacity onPress={() => router.push('/helper')}>
             <MaterialCommunityIcons name="clipboard-edit-outline" size={24} color="black" />
           </TouchableOpacity>
         </View>
