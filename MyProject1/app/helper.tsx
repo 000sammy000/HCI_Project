@@ -88,8 +88,9 @@ const SendFoodEntries: React.FC = () => {
                 isPressed || pressed ? styles.buttonPressed : styles.buttonDefault,
             ]}
         >
-            <Text style={styles.buttonText}>小雞健康診斷</Text>
-        </Pressable>;
+        <Text style={styles.buttonText}>小雞健康診斷</Text>
+        </Pressable>
+        
           
           {loading ?  (
             <View style={styles.loadingContainer}>

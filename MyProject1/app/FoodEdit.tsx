@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView,Pressable } from 'react-native';
 
 const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
   const original_Data = foodData;
@@ -68,41 +68,51 @@ const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
 
   return (
     <ScrollView style={styles.scrollContainer}>
-      <Text style={styles.title}>Edit Food Content</Text>
-      {editedData.map((foodItem, index) => (
-        <View key={index} style={styles.foodItemContainer}>
-          <TextInput
-            style={styles.foodItemTitleInput}
-            placeholder="Food Title"
-            value={foodItem.title}
-            onChangeText={(newTitle) => handleTitleChange(index, newTitle)}
-          />
-          <View style={styles.container}>
-            {Object.entries(foodItem.categories).map(([category, value]) => (
-              <View key={category} style={styles.inputContainer}>
-                <Text style={styles.categoryLabel}>{category}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder={category}
-                  value={value.toString()}
-                  keyboardType='numeric'
-                  onChangeText={(newValue) =>
-                    handleCategoryChange(index, category, newValue)
-                  }
-                />
-              </View>
-            ))}
+  <Text style={styles.title}>Edit Food Content</Text>
+  {editedData.map((foodItem, index) => (
+    <View key={index} style={styles.foodItemContainer}>
+      <TextInput
+        style={styles.foodItemTitleInput}
+        placeholder="Food Title"
+        value={foodItem.title}
+        onChangeText={(newTitle) => handleTitleChange(index, newTitle)}
+      />
+      <View style={styles.container}>
+        {Object.entries(foodItem.categories).map(([category, value]) => (
+          <View key={category} style={styles.inputContainer}>
+            <Text style={styles.categoryLabel}>{category}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={category}
+              value={value.toString()}
+              keyboardType="numeric"
+              onChangeText={(newValue) =>
+                handleCategoryChange(index, category, newValue)
+              }
+            />
           </View>
-          <Button title="Delete" onPress={() => handleDelete(index)} />
-        </View>
-      ))}
-      <View style={styles.buttonContainer}>
-        <Button title="取消" onPress={onClose} />
-        <Button title="重設" onPress={handleReset} color="red" /> {/* Reset Button */}
-        <Button title="新增" onPress={addNewItem} />
-        <Button title="儲存" onPress={handleSave} />
+        ))}
       </View>
-    </ScrollView>
+      <Pressable onPress={() => handleDelete(index)} style={styles.button}>
+        <Text style={styles.buttonText}>Delete</Text>
+      </Pressable>
+    </View>
+  ))}
+  <View style={styles.buttonContainer}>
+    <Pressable onPress={onClose} style={[styles.button, styles.cancelButton]}>
+      <Text style={styles.buttonText}>取消</Text>
+    </Pressable>
+    <Pressable onPress={handleReset} style={styles.button}>
+      <Text style={styles.buttonText}>重設</Text>
+    </Pressable>
+    <Pressable onPress={addNewItem} style={styles.button}>
+      <Text style={styles.buttonText}>新增</Text>
+    </Pressable>
+    <Pressable onPress={handleSave} style={[styles.button, styles.saveButton]}>
+      <Text style={styles.buttonText}>儲存</Text>
+    </Pressable>
+  </View>
+</ScrollView>
   );
 };
 const styles = StyleSheet.create({
@@ -152,6 +162,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 70,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#ff4d4d',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
