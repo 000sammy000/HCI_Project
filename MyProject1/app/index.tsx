@@ -321,6 +321,22 @@ export default function App() {
     };
     checkAnimationStatus();
   }, []);
+  const cgs = [
+    require('@/assets/images/cg1.png'), // 替換為實際路徑
+    require('@/assets/images/cg2.png'),
+    require('@/assets/images/cg3.png'),
+  ];
+
+  // 使用狀態來儲存隨機選中的圖片
+  const [randomImage, setRandomImage] = useState(null);
+
+  // 當 `CGVisible` 為 true 時隨機選擇一張圖片
+  useEffect(() => {
+    if (CGVisible) {
+      const randomIndex = Math.floor(Math.random() * cgs.length);
+      setRandomImage(cgs[randomIndex]);
+    }
+  }, [CGVisible]);
 
   return (
     <ImageBackground 
@@ -423,15 +439,18 @@ export default function App() {
         visible={CGVisible}
         onRequestClose={closeModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.CGContent}>
-            <Text style={styles.CGText}>觸發CG</Text>
-            <Pressable style={styles.closeButton} onPress={closeModal}>
-              <Text style={styles.closeButtonText}>結束</Text>
-            </Pressable>
-          </View>
+      <View style={styles.modalOverlay}>
+        <View style={styles.CGContent}>
+          <Text style={styles.CGText}>觸發CG</Text>
+          {randomImage && (
+            <Image source={randomImage} style={styles.imageStyle} />
+          )}
+          <Pressable style={styles.closeButton} onPress={closeModal}>
+            <Text style={styles.closeButtonText}>結束</Text>
+          </Pressable>
         </View>
-      </Modal>
+      </View>
+    </Modal>
 
     </View>
     </ImageBackground>
@@ -574,6 +593,11 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  imageStyle: {
+    width: 600, // 設定寬度
+    height: 600, // 設定高度
+    resizeMode: 'contain', // 調整圖片的顯示模式
   },
 });
 
