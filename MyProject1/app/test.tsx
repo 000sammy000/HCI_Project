@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ScrollView, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // 引入 AsyncStorage
 import { Picker } from '@react-native-picker/picker';
 import { interpolateNutrition } from "./nutritionCalc"; 
@@ -55,15 +55,32 @@ export default function CalorieCalculator() {
   };
 
   const clearData = async () => {
-    try {
-      await AsyncStorage.clear(); // 清除所有儲存資料
-      setHeight(''); // 清空輸入框
-      setWeight(''); // 清空輸入框
-      setActivityLevel('light');
-      alert('資料已清除');
-    } catch (error) {
-      console.error('清除失敗', error);
-    }
+    Alert.alert(
+      '警告', 
+      '確定要清除資料? 所有進度將會重置',
+      [
+        {
+          text: '取消',
+          onPress: () => console.log('取消清除資料'),
+          style: 'cancel',
+        },
+        {
+          text: '確定',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear(); // 清除所有儲存資料
+              setHeight(''); // 清空輸入框
+              setWeight(''); // 清空輸入框
+              setActivityLevel('light');
+              Alert.alert('成功', '資料已清除');
+            } catch (error) {
+              console.error('清除失敗', error);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
   
   // 當元件載入時自動讀取資料
