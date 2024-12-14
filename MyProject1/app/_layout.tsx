@@ -35,7 +35,7 @@ export default function RootLayout() {
         <Stack.Screen name="camera" options={{ title: '拍照' , headerBackVisible: false  }} />
         <Stack.Screen name="album" options={{ title: '相簿' , headerBackVisible: false  }} />
         <Stack.Screen name="time" options={{ title: '歷史紀錄' , headerBackVisible: false }} />
-        <Stack.Screen name="helper" options={{ title: '飲食建議' , headerBackVisible: false }} />
+        <Stack.Screen name="helper" options={{ title: '飲食診療室' , headerBackVisible: false }} />
         <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
       </Stack>
     </ThemeProvider>

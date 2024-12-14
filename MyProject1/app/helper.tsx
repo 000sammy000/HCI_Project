@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from "react";
-import { View, Button, StyleSheet, Alert, Text, ScrollView, ActivityIndicator, Pressable  } from "react-native";
+import { View, Button, StyleSheet, Alert, Text, ScrollView, ActivityIndicator, Pressable, ImageBackground  } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from './navigation';
 import axios from 'axios';
@@ -9,6 +9,7 @@ const SendFoodEntries: React.FC = () => {
   const [loading, setLoading] = useState(false); // Loading state for ActivityIndicator
   const [isPressed, setIsPressed] = useState(false);
 
+  /* permanantly showing result on the screen
   useEffect(() => {
     const load_StoredResult = async () => {
       const StoredResult = await AsyncStorage.getItem('AnalysisResult');
@@ -18,21 +19,20 @@ const SendFoodEntries: React.FC = () => {
     };
     load_StoredResult();
   }, []);
-
+  */
   const sendFoodEntries = async () => {
     setLoading(true); // Show ActivityIndicator
     try {
         // Retrieve food entries from AsyncStorage
-        //console.log('sucess')
         const entriesJson = await AsyncStorage.getItem('DailyfoodEntries');
         // Parse and extract only "foods"
         const foodEntries = entriesJson ? JSON.parse(entriesJson).map(entry => entry.foods).flat() : [];
         
         if (foodEntries.length === 0) {
-            Alert.alert("No Data", "No DailyfoodEntries to send.");
+            Alert.alert("空腹", "小雞肚子咕嚕咕嚕叫");
             return;
         }
-        console.log("food Data:", foodEntries); // Debug log
+        console.log("food Data:", foodEntries); 
         // Send data to Python backend
         const response = await axios.post('http://192.168.86.65:5000/analyze-food-entries', 
             {foodEntries}, 
@@ -67,46 +67,56 @@ const SendFoodEntries: React.FC = () => {
       </View>
     ));
   };
+  const clearResult = () => {
 
+  }
   return (
-    <View style={styles.container}>
-      <Navigation />
-       
-      <Pressable
-        onPressIn={() => setIsPressed(true)}
-        onPressOut={() => setIsPressed(false)}
-        onPress={sendFoodEntries}
-        style={({ pressed }) => [
-            styles.button,
-            isPressed || pressed ? styles.buttonPressed : styles.buttonDefault,
-        ]}
-      >
+    <ImageBackground 
+      source={require('@/assets/images/medical_room.jpg')} // Replace with your image path
+      style={styles.background}
+      resizeMode="cover"
+    >
+    
+      <View style={styles.container}>
+        <Navigation/>
+        <Pressable
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
+            onPress={sendFoodEntries}
+            style={({ pressed }) => [
+                styles.button,
+                isPressed || pressed ? styles.buttonPressed : styles.buttonDefault,
+            ]}
+        >
+            <Text style={styles.buttonText}>小雞健康診斷</Text>
+        </Pressable>;
+          
+          {loading ?  (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0066ff" />
+            </View>
+          ): null }
 
-        <Text style={styles.buttonText}>分析今日餐點</Text>
-
-      </Pressable>;
-
-      {loading ?  (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0066ff" />
-        </View>
-      ): null }
-
-      {analysisResult && (
-        <ScrollView style={styles.resultContainer}>
-          {renderResult(JSON.parse(analysisResult))}
-        </ScrollView>
-      )}
-    </View>
+          {analysisResult ? (
+            <ScrollView style={styles.resultContainer}>
+              {renderResult(JSON.parse(analysisResult))}
+            </ScrollView>
+          ): null}
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {//背景
+        flex: 1,
+        resizeMode: 'cover', 
+  },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    //backgroundColor: "#f5f5f5",
   },
   resultContainer: {
     marginTop: 20,
@@ -153,6 +163,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  card: {
+    marginBottom: 15,
+    padding: 15,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   title: {
     fontSize: 18,
