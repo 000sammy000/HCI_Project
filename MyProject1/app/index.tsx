@@ -149,7 +149,7 @@ export default function App() {
 
       // 日結算
       // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
-      if (now.getHours() === 22 && now.getMinutes() === 12 && now.getSeconds() === 0) {
+      if (now.getHours() === 23 && now.getMinutes() === 37 && now.getSeconds() === 0) {
         if (!isDailySettlementRunning) {
           isDailySettlementRunning = true;
           const settlementHandler = async () => {
@@ -164,16 +164,6 @@ export default function App() {
 
             setIsDailySummaryVisible(true);
           };
-          
-          // 更新健康狀態
-          const totalPoints = await AsyncStorage.getItem('totalPoints');
-          console.log('totalPoints:', totalPoints);
-          
-          // set health icon
-          setHealthIcon(totalPoints >= 70 
-            ? require('../assets/images/health.png') 
-            : require('../assets/images/unhealth.png')
-          );
 
           // 清空日進度、progress
           await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify([]));
@@ -183,6 +173,18 @@ export default function App() {
           isDailySettlementRunning = false;
         }
       }
+
+      const setIcon = async () => {
+        const totalPoints = await AsyncStorage.getItem('totalPoints');
+        // console.log('icon totalPoints:', totalPoints);
+        
+        // set health icon
+        setHealthIcon(totalPoints >= 70 
+          ? require('../assets/images/health.png') 
+          : require('../assets/images/unhealth.png')
+        );
+      }
+      setIcon();
 
       // 周結算
       if (targetDate) {
