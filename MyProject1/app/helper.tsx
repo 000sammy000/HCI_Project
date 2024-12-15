@@ -27,15 +27,24 @@ const SendFoodEntries: React.FC = () => {
         const entriesJson = await AsyncStorage.getItem('DailyfoodEntries');
         // Parse and extract only "foods"
         const foodEntries = entriesJson ? JSON.parse(entriesJson).map(entry => entry.foods).flat() : [];
-        
         if (foodEntries.length === 0) {
             Alert.alert("空腹", "小雞肚子咕嚕咕嚕叫");
             return;
         }
+
+        //Retrieve nutrition standard
+        const standardJson = await AsyncStorage.getItem('userData');
+        const nutriJson = standardJson ? JSON.parse(standardJson) : [];
+        const nutriStandard = JSON.stringify(nutriJson.nutrition, null, 2)
+        console.log('nutri: '+nutriStandard);
+
         console.log("food Data:", foodEntries); 
         // Send data to Python backend
         const response = await axios.post('http://192.168.86.65:5000/analyze-food-entries', 
-            {foodEntries}, 
+            {
+              foodEntries,
+              nutriStandard,
+            }, 
             {headers: {'Content-Type': 'application/json',  }}
         );
         //console.log("Response Data:", response.data); // Debug log

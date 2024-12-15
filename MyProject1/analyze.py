@@ -6,7 +6,7 @@ import json
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def analyze_nutrients(food_entries):
+def analyze_nutrients(food_entries,nutri_standard):
     """
     Use GPT to analyze food entries, determine missing nutrients, and suggest solutions.
     """
@@ -14,15 +14,15 @@ def analyze_nutrients(food_entries):
         # Format the input data for GPT
         prompt = """
         食物共分為6大類，分類與份量單位為：
-        1. 全榖雜糧類，1份 = 米、大麥等80公克；
-        2. 豆蛋魚肉類，1份 = 黃豆20公克 = 蛋1顆 = 魚35公克 = 去皮雞胸肉30公克；
-        3. 乳品類，1份 = 鮮奶240毫升；
-        4. 蔬菜類，1份 = 生菜100公克；
-        5. 水果類，1份 = 水果100公克 = 香蕉半根；
-        6. 油脂與堅果種子類，1份 = 油類1茶匙；
+        1. 全榖雜糧類，1單位 = 米、大麥等80公克；
+        2. 豆蛋魚肉類，1單位 = 黃豆20公克 = 蛋1顆 = 魚35公克 = 去皮雞胸肉30公克；
+        3. 乳品類，1單位 = 鮮奶240毫升；
+        4. 蔬菜類，1單位 = 生菜100公克；
+        5. 水果類，1單位 = 水果100公克 = 香蕉半根；
+        6. 油脂與堅果種子類，1單位 = 油類1茶匙；
         
-        JSON檔裡為今天的進食餐點，請讀取檔案，
-        並以檔案裡食物品項與營養素加總分量比例分析今天還缺乏哪些營養素(不一定要以上舉的六大類)。解釋得出結論的理由，
+        食物條目裡為今天的進食餐點，請以裏頭食物品項與其營養成分，與一日營養素標準比較，
+        分析今天還缺乏哪些營養素(非六大類),特別著重指出微量元素的缺乏情況。解釋得出結論的理由，
         並建議可以解決這些缺乏問題的具體食材或食品(台灣產地為主)。
         {       
             "lack_nutrients": [
@@ -56,7 +56,7 @@ def analyze_nutrients(food_entries):
             messages=[
                 {
                     "role": "user",
-                    "content": f"{prompt}\n\n食物條目:\n{json.dumps(food_entries, ensure_ascii=False)}",
+                    "content": f"{prompt}\n\n食物條目:\n{json.dumps(food_entries, ensure_ascii=False)}\n一日營養素標準:{json.dumps(nutri_standard, ensure_ascii=False)}",
                 }
             ],
             response_format={
@@ -101,13 +101,19 @@ def analyze_food_entries():
     try:
         # Get food entries from request
         data = request.get_json()
+        
         if not data or 'foodEntries' not in data:
             return jsonify({"error": "Invalid data format. 'foodEntries' is required."}), 400
-
+        
         food_entries = data['foodEntries']
-
+        print('data : ' , data)
+        if not data or 'nutriStandard' not in data:
+            return jsonify({"error": "Invalid data format. 'nutrionStandard' is required."}), 400
+        
+        nutri_standard = data['nutriStandard']
+        
         # Analyze the food entries
-        analysis = analyze_nutrients(food_entries)
+        analysis = analyze_nutrients(food_entries,nutri_standard)
 
         # Return the analysis as JSON
         #print(analysis)
