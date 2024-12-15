@@ -83,8 +83,10 @@ export default function AlbumPage() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex: 1, // 占滿整個畫面
+    justifyContent: 'center', // 垂直居中
+    alignItems: 'center', // 水平居中
+    backgroundColor: '#fffbe2', // 背景顏色
   },
   text: {
     fontSize: 24,
