@@ -86,17 +86,34 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
               本日營養攝取總結
             </Text>
 
-            {nutritionDifferences.map((nutrient, index) => (
-              <View key={index} style={styles.nutrientRow}>
-                <Text style={styles.nutrientName}>{nutrient.name}</Text>
-                <Text style={[
-                  styles.nutrientValue,
-                  nutrient.difference < 0 ? styles.belowTarget : styles.aboveTarget
-                ]}>
-                  {nutrient.current}/{nutrient.target} {nutrient.difference < 0 ? '偏低' : '偏高'}
-                </Text>
-              </View>
-            ))}
+            {nutritionDifferences.map((nutrient, index) => {
+              let stateLabel = '';
+              let stateStyle = {}; 
+
+              // Determine state and corresponding style
+              if (nutrient.difference < 0 && Math.abs(nutrient.difference/nutrient.target) >=0.7) {
+                stateLabel = '暈倒'; 
+                stateStyle = styles.severelyBelowTarget;
+              } else if (nutrient.difference < 0 && Math.abs(nutrient.difference/nutrient.target) >0.4) {
+                stateLabel = '稍微偏低'; 
+                stateStyle = styles.slightlyBelowTarget;
+              } else if (Math.abs(nutrient.difference/nutrient.target) <= 0.4) {
+                stateLabel = '正常'; 
+                stateStyle = styles.normal;
+              } else {
+                stateLabel = '快吐了'; 
+                stateStyle = styles.severelyAboveTarget;
+              }
+
+              return (
+                <View key={index} style={styles.nutrientRow}>
+                  <Text style={styles.nutrientName}>{nutrient.name}</Text>
+                  <Text style={[styles.nutrientValue, stateStyle]}>
+                    {nutrient.current}/{nutrient.target} {stateLabel}
+                  </Text>
+                </View>
+              );
+            })}
 
             {mostSignificantDeviation && (
               <View style={styles.recommendationContainer}>
@@ -208,7 +225,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold'
-  }
+  },
+  severelyBelowTarget: {
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  slightlyBelowTarget: {
+    color: 'orange',
+  },
+  normal: {
+    color: 'blue',
+  },
+  severelyAboveTarget: {
+    color: 'green',
+    fontWeight: 'bold',
+  },
 });
 
 export default DailySummaryModal;

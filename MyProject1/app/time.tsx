@@ -7,7 +7,6 @@ const Surprise: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<string>("");
   const [period, setPeriod] = useState<string>("");
-  const [showSurprise, setShowSurprise] = useState<boolean>(false);
   const [foodEntries, setFoodEntries] = useState<any[]>([]);
 
   const surpriseTime = "12:00:00";
@@ -42,11 +41,6 @@ const Surprise: React.FC = () => {
       setCurrentTime(formattedTime);
       setCurrentDate(formattedDate);
       setPeriod(hours < 12 ? "上午" : "下午");
-
-      if (formattedTime.includes(surpriseTime)) {
-        setShowSurprise(true);
-        Alert.alert("驚喜！", `現在是 ${formattedTime}，這是你的驚喜！`);
-      }
     };
 
     updateTime();
@@ -63,11 +57,6 @@ const Surprise: React.FC = () => {
       <Text style={styles.time}>
         {currentTime} ({period})
       </Text>
-      {showSurprise && (
-        <View style={styles.surpriseContainer}>
-          <Text style={styles.surpriseText}>🎉 這是你的驚喜！ 🎉</Text>
-        </View>
-      )}
       <View style={styles.foodEntriesContainer}>
         <Text style={styles.foodEntriesTitle}>飲食紀錄</Text>
         <ScrollView style={styles.foodEntriesList}>
@@ -126,17 +115,6 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 32,
     color: "#333",
-  },
-  surpriseContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#ffde59",
-    borderRadius: 10,
-  },
-  surpriseText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#000",
   },
   foodEntriesContainer: {
     width: '90%',
