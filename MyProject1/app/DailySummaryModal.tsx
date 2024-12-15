@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface DailySummaryModalProps {
   visible: boolean;
@@ -35,6 +36,24 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
     difference: currentProgress[key] - targetProgress[key]
   }));
 
+  // Calculate total points: 100 - sum of absolute differences / 6 * 10
+  const totalPoints = 100 - nutritionDifferences.reduce((acc, nutrient) =>
+    acc + (Math.abs(nutrient.difference) / nutrient.target) * 10
+  , 0);
+  React.useEffect(() => {
+    if (visible) {
+      AsyncStorage.setItem('totalPoints', totalPoints.toString());
+      // parse to weekTotalPoints
+      AsyncStorage.getItem('weekTotalPoints').then((array) => {
+        let weekTotalPoints = array ? JSON.parse(array) : [];
+        weekTotalPoints.push(totalPoints);
+        AsyncStorage.setItem('weekTotalPoints', JSON.stringify(weekTotalPoints));
+        console.log(weekTotalPoints);
+      });
+      console.log('total today: ', totalPoints);
+    }
+  }, [visible]);
+
   // Sort differences to find the most significant deviation
   const sortedDifferences = nutritionDifferences.sort((a, b) => 
     Math.abs(b.difference) - Math.abs(a.difference)
@@ -52,6 +71,15 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>今日營養結算</Text>
+          {/* 顯示totalPoints */}
+            <Text 
+            style={[
+              styles.modalTitle, 
+              totalPoints < 30 ? { color: 'red' } : totalPoints < 70 ? { color: 'orange' } : { color: 'green' }
+            ]}
+            >
+            {totalPoints.toFixed(2)}%
+            </Text>
           
           <View style={styles.summaryContainer}>
             <Text style={styles.summaryText}>
@@ -75,7 +103,7 @@ const DailySummaryModal: React.FC<DailySummaryModalProps> = ({
                 <Text style={styles.recommendationTitle}>小雞想說...</Text>
                 <Text style={styles.recommendationText}>
                   {mostSignificantDeviation.name}攝取與建議量差異最大，
-                  {mostSignificantDeviation.difference < 0 ? '我好想吃喔～' : '我吃不下了...'}。
+                  {mostSignificantDeviation.difference < 0 ? '我好想吃喔～' : '我吃不下了...'}
                 </Text>
               </View>
             )}

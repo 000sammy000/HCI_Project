@@ -41,6 +41,7 @@ export default function App() {
   }); // Initial progress state
   const [foodEntries, setFoodEntries] = useState<any[]>([]);
   const [isDailySummaryVisible, setIsDailySummaryVisible] = useState(false);
+  const [healthIcon, setHealthIcon] = useState<any>(null);
 
   const loadFoodEntries = async () => {
     try {
@@ -144,26 +145,43 @@ export default function App() {
       const dateString = now.toLocaleDateString(); // 僅顯示年月日
       setCurrentTime(dateString);
 
+      let isDailySettlementRunning = false;
+
       // 日結算
       // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
-      if (now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-        const settlementHandler = async () => {
-          // 獲得當前食物進度
-          const tempFoodEntries = [...foodEntries];
-          const tempWeekData = await AsyncStorage.getItem('WeeklyfoodEntries');
-          const parsedWeekData = tempWeekData ? JSON.parse(tempWeekData) : [];
-      
-          // 更新 weekFoodEntries
-          const updatedWeekData = [...parsedWeekData, ...tempFoodEntries];
-          await AsyncStorage.setItem('WeeklyfoodEntries', JSON.stringify(updatedWeekData));
+      if (now.getHours() === 22 && now.getMinutes() === 12 && now.getSeconds() === 0) {
+        if (!isDailySettlementRunning) {
+          isDailySettlementRunning = true;
+          const settlementHandler = async () => {
+            // 獲得當前食物進度
+            const tempFoodEntries = [...foodEntries];
+            const tempWeekData = await AsyncStorage.getItem('WeeklyfoodEntries');
+            const parsedWeekData = tempWeekData ? JSON.parse(tempWeekData) : [];
+        
+            // 更新 weekFoodEntries
+            const updatedWeekData = [...parsedWeekData, ...tempFoodEntries];
+            await AsyncStorage.setItem('WeeklyfoodEntries', JSON.stringify(updatedWeekData));
 
-          setIsDailySummaryVisible(true);
-        };
-        // 清空日進度、progress
-        AsyncStorage.setItem('DailyfoodEntries', JSON.stringify([]));
-        setFoodEntries([]);
+            setIsDailySummaryVisible(true);
+          };
+          
+          // 更新健康狀態
+          const totalPoints = await AsyncStorage.getItem('totalPoints');
+          console.log('totalPoints:', totalPoints);
+          
+          // set health icon
+          setHealthIcon(totalPoints >= 70 
+            ? require('../assets/images/health.png') 
+            : require('../assets/images/unhealth.png')
+          );
 
-        settlementHandler();
+          // 清空日進度、progress
+          await AsyncStorage.setItem('DailyfoodEntries', JSON.stringify([]));
+          setFoodEntries([]);
+          
+          await settlementHandler();
+          isDailySettlementRunning = false;
+        }
       }
 
       // 周結算
@@ -218,7 +236,6 @@ export default function App() {
   const closeModal = () => {
     setCGVisible(false);
   };
-
 
   const nutrientNameMap: { [key: string]: string } = {
     grains: '全榖雜糧類\n份量單位為1碗，約為米、大麥等80公克\n',
@@ -399,7 +416,8 @@ export default function App() {
         </TouchableOpacity>
         )}
       </View>
-
+      {/* 前一日的健康狀況icon */}
+      {healthIcon && <Image source={healthIcon} style={styles.healthIcon} />}
       {/* 每日結算彈出視窗 */}
       <DailySummaryModal
         visible={isDailySummaryVisible}
@@ -627,6 +645,13 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  healthIcon: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    top: -270,
+    right: 45,
   },
   imageStyle: {
     width: 600, // 設定寬度
