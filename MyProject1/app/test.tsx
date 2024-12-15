@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ScrollView, } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ScrollView, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // 引入 AsyncStorage
 import { Picker } from '@react-native-picker/picker';
 import { interpolateNutrition } from "./nutritionCalc"; 
@@ -174,8 +174,14 @@ export default function CalorieCalculator() {
             <Picker.Item label="重度運動" value="heavy" />
           </Picker>
 
-          <Button title="載入營養目標" onPress={Ensure_SaveData} />
-          <Button title="清除所有資料" onPress={clearData} />
+          <View style={styles.buttonContainer}>
+              <Pressable onPress={clearData} style={[styles.button, styles.clearButton]}>
+                <Text style={styles.buttonText}>清除所有資料</Text>
+              </Pressable>
+              <Pressable onPress={Ensure_SaveData} style={[styles.button]}>
+                <Text style={styles.buttonText}>載入營養目標</Text>
+              </Pressable>
+          </View>
 
           {/* 顯示結果或提示 */}
           {height && weight && bmi !== null && (
@@ -211,7 +217,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 80,
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fffbe2',
   },
   header: {
     fontSize: 24,
@@ -244,4 +250,25 @@ const styles = StyleSheet.create({
     justifyContent: "center", // 讓內容居中（如果內容不足以填滿螢幕）
     paddingBottom: 20,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  clearButton: {
+    backgroundColor: '#ff4d4d',
+  },
+  
 });

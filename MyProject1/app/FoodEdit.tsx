@@ -109,7 +109,7 @@ const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
       <Text style={styles.buttonText}>新增</Text>
     </Pressable>
     <Pressable onPress={handleSave} style={[styles.button, styles.saveButton]}>
-      <Text style={styles.buttonText}>儲存</Text>
+      <Text style={styles.buttonText}>餵食</Text>
     </Pressable>
   </View>
 </ScrollView>
