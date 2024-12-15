@@ -57,7 +57,7 @@ const Surprise: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Navigation />
+      <Navigation/>
       <Text style={styles.title}>現在時間</Text>
       <Text style={styles.date}>{currentDate}</Text>
       <Text style={styles.time}>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#fffbe2',
   },
   title: {
     fontSize: 24,

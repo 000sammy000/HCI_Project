@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     flex: 1, // 占滿整個畫面
     justifyContent: 'center', // 垂直居中
     alignItems: 'center', // 水平居中
-    backgroundColor: '#fff', // 背景顏色
+    backgroundColor: '#fffbe2', // 背景顏色
   },
   text: {
     fontSize: 24, // 文字大小

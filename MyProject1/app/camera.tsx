@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Alert, View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator} from 'react-native';
+import { Modal, Alert, View, Text, Button, StyleSheet, Image,TouchableOpacity, ActivityIndicator, Pressable} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -116,7 +116,7 @@ export default function ImageUploader() {
     setLoading(true); // Show ActivityIndicator
     try {
       const response = await axios.post(
-        'http://172.18.109.145:5000/analyzeimg', //change into your IP address
+        'http://192.168.86.65:5000/analyzeimg', //change into your IP address
         formData,  // Send formData directly
         {
           headers: { 
@@ -190,7 +190,7 @@ export default function ImageUploader() {
         Alert.alert('建議',`這餐的沒有吃到水果。冬天推薦吃${wf[rI]}!`);
       }
     }
-    console.log('Saved food data:', updatedEntries);
+    //console.log('Saved food data:', updatedEntries);
   }
 
   const closeFoodEdit = () => {
@@ -204,9 +204,17 @@ export default function ImageUploader() {
     <View style={styles.container}>
       <Text style={styles.header}>圖片上傳</Text>
 
-      <Button title="選擇圖片" onPress={selectImage} />
-      <Button title="拍照" onPress={takePhoto} />
-      <Button title="分析圖片" onPress={llm_analyze} />
+      <View style={styles.buttonContainer}>
+          <Pressable onPress={selectImage} style={styles.button}>
+            <Text style={styles.buttonText}>選擇圖片</Text>
+          </Pressable>
+          <Pressable onPress={takePhoto} style={styles.button}>
+            <Text style={styles.buttonText}>拍照</Text>
+          </Pressable>
+          <Pressable onPress={llm_analyze} style={[styles.button, styles.analyzeButton]}>
+            <Text style={styles.buttonText}>分析圖片</Text>
+          </Pressable>
+        </View>
 
       {loading ?  (
         <View style={styles.loadingContainer}>
@@ -243,7 +251,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fffbe2',
   },
   header: {
     fontSize: 24,
@@ -269,5 +277,27 @@ const styles = StyleSheet.create({
     left: '55%',
     transform: [{ translateX: -25 }, { translateY: -25 }],
     alignItems: 'center',
+  },
+  buttonContainer: {
+    borderRadius: 10,   
+    alignSelf: 'center',
+    marginBottom: 70,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  analyzeButton:{
+    backgroundColor: '#4CAF50',
   },
 });
