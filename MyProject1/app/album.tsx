@@ -56,6 +56,7 @@ export default function AlbumPage() {
       </TouchableOpacity>
     );
   };
+  
   return (
     <View style={styles.container}>
       {/* 使用 FlatList 顯示圖片 */}

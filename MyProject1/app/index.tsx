@@ -135,6 +135,8 @@ export default function App() {
     initializeTargetDate();
   }, []);
 
+  const [lastExecutionTime, setLastExecutionTime] = useState<Date | null>(null);
+
   // 更新當前時間 & 檢測是否超過七天
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -172,23 +174,39 @@ export default function App() {
         setDayCount(8 - diffDays);
 
         // 如果到達目標時間
-        if (now >= targetDate) {
-          setCGVisible(true);
-
+        if (now >= targetDate&&!CGVisible) {
+          console.log("NowTime:",now.getTime());
+       
+          const timeSinceLastExecution = lastExecutionTime ? now.getTime() - lastExecutionTime.getTime() : null;
+          setLastExecutionTime(now);
+          //console.log("SinceLastExecution:",timeSinceLastExecution);
+          
           // 更新目標時間為 7 天後的午夜
           const newTargetDate = new Date();
           newTargetDate.setDate(newTargetDate.getDate() + 7);
           newTargetDate.setHours(0, 0, 0, 0);
           setTargetDate(newTargetDate);
+          
 
           try {
             await AsyncStorage.setItem(
               "targetDate",
               newTargetDate.toISOString()
             );
+            //console.log("new target date:",newTargetDate);
           } catch (error) {
             Alert.alert("錯誤", "儲存新目標時間失敗！");
           }
+          // 如果距離上次執行少於10秒，跳過這次執行
+
+          if (timeSinceLastExecution && timeSinceLastExecution < 10000) {
+            console.log("距離上次執行少於 10 秒，跳過此次執行");
+            return;
+          }
+
+          getUsedCGs();
+          setCGVisible(true);
+
         }
       }
 
@@ -322,21 +340,37 @@ export default function App() {
     checkAnimationStatus();
   }, []);
   const cgs = [
-    require('@/assets/images/cg1.png'), // 替換為實際路徑
-    require('@/assets/images/cg2.png'),
-    require('@/assets/images/cg3.png'),
+    { id: 1,source:require('@/assets/images/cg1.png')}, // 替換為實際路徑
+    { id: 2,source:require('@/assets/images/cg2.png')},
+    { id: 3,source:require('@/assets/images/cg3.png')},
   ];
 
   // 使用狀態來儲存隨機選中的圖片
   const [randomImage, setRandomImage] = useState(null);
+  
+  const getUsedCGs = async () => {
+    try {
+      // 讀取已顯示過的圖片 ID
+      const storedCache = await AsyncStorage.getItem('usedCGs');
+      let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
 
-  // 當 `CGVisible` 為 true 時隨機選擇一張圖片
-  useEffect(() => {
-    if (CGVisible) {
+      // 選擇一張尚未顯示過的圖片
+      
       const randomIndex = Math.floor(Math.random() * cgs.length);
-      setRandomImage(cgs[randomIndex]);
+      const selectedCg = cgs[randomIndex];
+
+      // 更新隨機顯示的圖片
+      setRandomImage(selectedCg.source);
+      
+      // 將這張顯示過的圖片 ID 儲存到 AsyncStorage
+      usedCGs[randomIndex] = 1;
+      await AsyncStorage.setItem('usedCGs', JSON.stringify(usedCGs));
+      //console.log('Updated usedCGs:',randomIndex, usedCGs);
+    } catch (error) {
+      console.error('Failed to fetch or save used CGs:', error);
     }
-  }, [CGVisible]);
+  };
+  
 
   return (
     <ImageBackground 
