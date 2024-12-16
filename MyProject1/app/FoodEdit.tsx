@@ -35,7 +35,12 @@ const FoodEditScreen = ({ foodData, onClose, onSave  }) => {
   };
 
   const handleSave = () => {
-    console.log('Saved Data:', editedData);
+    //console.log('Saved Data:', editedData);
+    const EmptyFood = editedData.length < 1;
+    if(EmptyFood){
+      alert('不可以餵食空氣');
+      return;
+    }
     const hasEmptyTitle = editedData.some((item) => item.title.trim() === '' || item.title.trim() === "");
     if(hasEmptyTitle){
       alert('有食材為空');
@@ -137,7 +142,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
-    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 3,
+    borderRightWidth: 1,
+    borderLeftWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     backgroundColor: '#fff',
