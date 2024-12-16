@@ -391,6 +391,11 @@ export default function App() {
       // Calculate average
       const total = weekTotalPoints.reduce((acc, num) => acc + num, 0);
       const average = total / weekTotalPoints.length;
+
+      
+      const storedCache = await AsyncStorage.getItem('usedCGs');
+      let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
+      
       setAveragePoints(average);
     } else {
       setAveragePoints(0); // Handle case when array is empty
@@ -409,7 +414,7 @@ export default function App() {
     console.log(maxGroup.id + " " + maxGroup.progress);
     
     // 若該組合及格(達建議攝取量的80%)，則顯示CG
-    if (averagePoints >= 80) {
+    if (averagePoints >= 0) {
       const selectedCg = cgs[maxGroup.id];
       console.log("setCGSource : " + cgs[maxGroup.id]);
       setCGSource(selectedCg.source);
@@ -417,6 +422,8 @@ export default function App() {
     }else{
       console.log("no CG");
     }
+    usedCGs[maxGroup.id] = 1;
+    await AsyncStorage.setItem('usedCGs', JSON.stringify(usedCGs));
   };
 
   // 使用狀態來儲存隨機選中的圖片
