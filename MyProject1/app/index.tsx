@@ -149,7 +149,7 @@ export default function App() {
 
       // 日結算
       // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
-      if (now.getHours() === 23 && now.getMinutes() === 37 && now.getSeconds() === 0) {
+      if (now.getHours() === 11 && now.getMinutes() === 29 && now.getSeconds() === 0) {
         if (!isDailySettlementRunning) {
           isDailySettlementRunning = true;
           const settlementHandler = async () => {
@@ -193,14 +193,26 @@ export default function App() {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 向上取整
         setDayCount(8 - diffDays);
 
+        // 當前日期與結算日相差過大時重設為當前日期7天後
+        if(diffDays > 7){
+          const newTargetDate = new Date();
+          newTargetDate.setDate(now.getDate() + 7);
+          newTargetDate.setHours(0, 0, 0, 0);
+          setTargetDate(newTargetDate);
+        }
+
         // 如果到達目標時間
-        if (now >= targetDate&&!CGVisible) {
+        if (now >= targetDate/*&&!CGVisible*/) {
           console.log("NowTime:",now.getTime());
        
           const timeSinceLastExecution = lastExecutionTime ? now.getTime() - lastExecutionTime.getTime() : null;
           setLastExecutionTime(now);
           //console.log("SinceLastExecution:",timeSinceLastExecution);
-          
+
+          // getUsedCGs();
+          determineCG();
+          setCGVisible(true);
+
           // 更新目標時間為 7 天後的午夜
           const newTargetDate = new Date();
           newTargetDate.setDate(newTargetDate.getDate() + 7);
@@ -224,8 +236,7 @@ export default function App() {
             return;
           }
 
-          getUsedCGs();
-          setCGVisible(true);
+          
 
         }
       }
@@ -237,6 +248,7 @@ export default function App() {
 
   const closeModal = () => {
     setCGVisible(false);
+    setCGSource(null);
   };
 
   const nutrientNameMap: { [key: string]: string } = {
@@ -363,6 +375,31 @@ export default function App() {
     { id: 2,source:require('@/assets/images/cg2.png')},
     { id: 3,source:require('@/assets/images/cg3.png')},
   ];
+
+  const [CGScource, setCGSource] = useState(null);
+
+  const determineCG = async () => {
+    // 將當前progress兩兩相加
+    const groupedProgress = [
+      { id: 0, progress: nutrients.find(n => n.name === "protein").progress + nutrients.find(n => n.name === "oils").progress },
+      { id: 1, progress: nutrients.find(n => n.name === "grains").progress + nutrients.find(n => n.name === "dairy").progress },
+      { id: 2, progress: nutrients.find(n => n.name === "vegetables").progress + nutrients.find(n => n.name === "fruits").progress },
+    ];
+  
+    // 取最大的組合
+    const maxGroup = groupedProgress.reduce((max, group) => group.progress > max.progress ? group : max);
+    console.log(maxGroup.id + " " + maxGroup.progress);
+    
+    // 若該組合及格(達建議攝取量的80%)，則顯示CG
+    if (maxGroup.progress >= 1.6) {
+      const selectedCg = cgs[maxGroup.id];
+      console.log("setCGSource : " + cgs[maxGroup.id]);
+      setCGSource(selectedCg.source);
+      console.log("setCGSource : " + CGScource);
+    }else{
+      console.log("no CG");
+    }
+  };
 
   // 使用狀態來儲存隨機選中的圖片
   const [randomImage, setRandomImage] = useState(null);
@@ -495,10 +532,11 @@ export default function App() {
       >
       <View style={styles.modalOverlay}>
         <View style={styles.CGContent}>
-          <Text style={styles.CGText}>觸發CG</Text>
-          {randomImage && (
-            <Image source={randomImage} style={styles.imageStyle} />
+          <Text style={styles.CGText}>完成了本次的養成！</Text>
+          {CGScource && (
+            <Image source={CGScource} style={styles.imageStyle} />
           )}
+          {/* <Image source={CGScource} style={styles.imageStyle} /> */}
           <Pressable style={styles.closeButton} onPress={closeModal}>
             <Text style={styles.closeButtonText}>結束</Text>
           </Pressable>
