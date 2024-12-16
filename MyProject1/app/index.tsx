@@ -377,8 +377,26 @@ export default function App() {
   ];
 
   const [CGScource, setCGSource] = useState(null);
+  const [averagePoints, setAveragePoints] = useState(0);
 
   const determineCG = async () => {
+    
+    // 讀取之前存的分數
+    const array = await AsyncStorage.getItem('weekTotalPoints');
+    const weekTotalPoints = array ? JSON.parse(array) : [];
+    console.log(weekTotalPoints);
+
+    // Check if the array is not empty
+    if (weekTotalPoints.length > 0) {
+      // Calculate average
+      const total = weekTotalPoints.reduce((acc, num) => acc + num, 0);
+      const average = total / weekTotalPoints.length;
+      setAveragePoints(average);
+    } else {
+      setAveragePoints(0); // Handle case when array is empty
+    }
+    console.log(averagePoints);
+
     // 將當前progress兩兩相加
     const groupedProgress = [
       { id: 0, progress: nutrients.find(n => n.name === "protein").progress + nutrients.find(n => n.name === "oils").progress },
@@ -391,7 +409,7 @@ export default function App() {
     console.log(maxGroup.id + " " + maxGroup.progress);
     
     // 若該組合及格(達建議攝取量的80%)，則顯示CG
-    if (maxGroup.progress >= 1.6) {
+    if (averagePoints >= 80) {
       const selectedCg = cgs[maxGroup.id];
       console.log("setCGSource : " + cgs[maxGroup.id]);
       setCGSource(selectedCg.source);
@@ -536,7 +554,6 @@ export default function App() {
           {CGScource && (
             <Image source={CGScource} style={styles.imageStyle} />
           )}
-          {/* <Image source={CGScource} style={styles.imageStyle} /> */}
           <Pressable style={styles.closeButton} onPress={closeModal}>
             <Text style={styles.closeButtonText}>結束</Text>
           </Pressable>
@@ -690,8 +707,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     resizeMode: 'contain',
-    top: -270,
-    right: 45,
+    position: "absolute",
+    top: 75,
+    left: 110,
   },
   imageStyle: {
     width: 600, // 設定寬度
