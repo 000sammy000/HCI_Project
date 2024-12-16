@@ -149,7 +149,7 @@ export default function App() {
 
       // 日結算
       // 檢查當前時間是否為午夜 00:00:00 (結算時間可以再改)
-      if (now.getHours() === 11 && now.getMinutes() === 29 && now.getSeconds() === 0) {
+      if (now.getHours() === 18 && now.getMinutes() === 35 && now.getSeconds() === 0) {
         if (!isDailySettlementRunning) {
           isDailySettlementRunning = true;
           const settlementHandler = async () => {
@@ -209,7 +209,7 @@ export default function App() {
           setLastExecutionTime(now);
           //console.log("SinceLastExecution:",timeSinceLastExecution);
 
-          // getUsedCGs();
+          //getUsedCGs();
           determineCG();
           setCGVisible(true);
 
@@ -379,6 +379,29 @@ export default function App() {
   const [CGScource, setCGSource] = useState(null);
   const [averagePoints, setAveragePoints] = useState(0);
 
+  const getUsedCGs = async () => {
+    try {
+      // 讀取已顯示過的圖片 ID
+      const storedCache = await AsyncStorage.getItem('usedCGs');
+      let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
+
+      // 選擇一張尚未顯示過的圖片
+      
+      const randomIndex = Math.floor(Math.random() * cgs.length);
+      const selectedCg = cgs[randomIndex];
+
+      // 更新隨機顯示的圖片
+      setRandomImage(selectedCg.source);
+      
+      // 將這張顯示過的圖片 ID 儲存到 AsyncStorage
+      usedCGs[randomIndex] = 1;
+      await AsyncStorage.setItem('usedCGs', JSON.stringify(usedCGs));
+      //console.log('Updated usedCGs:',randomIndex, usedCGs);
+    } catch (error) {
+      console.error('Failed to fetch or save used CGs:', error);
+    }
+  };
+
   const determineCG = async () => {
     
     // 讀取之前存的分數
@@ -386,16 +409,14 @@ export default function App() {
     const weekTotalPoints = array ? JSON.parse(array) : [];
     console.log(weekTotalPoints);
 
+    const storedCache = await AsyncStorage.getItem('usedCGs');
+    let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
+
     // Check if the array is not empty
     if (weekTotalPoints.length > 0) {
       // Calculate average
       const total = weekTotalPoints.reduce((acc, num) => acc + num, 0);
       const average = total / weekTotalPoints.length;
-
-      
-      const storedCache = await AsyncStorage.getItem('usedCGs');
-      let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
-      
       setAveragePoints(average);
     } else {
       setAveragePoints(0); // Handle case when array is empty
@@ -424,33 +445,11 @@ export default function App() {
     }
     usedCGs[maxGroup.id] = 1;
     await AsyncStorage.setItem('usedCGs', JSON.stringify(usedCGs));
+    
   };
 
   // 使用狀態來儲存隨機選中的圖片
   const [randomImage, setRandomImage] = useState(null);
-  
-  const getUsedCGs = async () => {
-    try {
-      // 讀取已顯示過的圖片 ID
-      const storedCache = await AsyncStorage.getItem('usedCGs');
-      let usedCGs = storedCache ? JSON.parse(storedCache) : [0, 0, 0];
-
-      // 選擇一張尚未顯示過的圖片
-      
-      const randomIndex = Math.floor(Math.random() * cgs.length);
-      const selectedCg = cgs[randomIndex];
-
-      // 更新隨機顯示的圖片
-      setRandomImage(selectedCg.source);
-      
-      // 將這張顯示過的圖片 ID 儲存到 AsyncStorage
-      usedCGs[randomIndex] = 1;
-      await AsyncStorage.setItem('usedCGs', JSON.stringify(usedCGs));
-      //console.log('Updated usedCGs:',randomIndex, usedCGs);
-    } catch (error) {
-      console.error('Failed to fetch or save used CGs:', error);
-    }
-  };
   
 
   return (
@@ -516,7 +515,7 @@ export default function App() {
               </View>
         ))}
       </View>
-
+      
       {/*icon資訊小視窗*/}
       <Modal
         animationType="fade"
